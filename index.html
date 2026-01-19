@@ -66,6 +66,55 @@
             margin-bottom: 5px;
             font-weight: 700;
         }
+
+        .audio-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+    gap: 15px;
+}
+
+.audio-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.audio-btn:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+.audio-btn.playing {
+    background-color: var(--accent-color);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Para mobile */
+@media (max-width: 768px) {
+    .audio-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3rem;
+    }
+}
         
         .subtitle {
             font-size: 0.85rem;
@@ -519,9 +568,14 @@
             <section id="gameSection" class="content hidden">
                 <h2>Qual é o som desta sílaba?</h2>
                 
-                <div class="tibetan-syllable" id="currentSyllable">
-                    ཀ
-                </div>
+                <div class="audio-container">
+    <div class="tibetan-syllable" id="currentSyllable">
+        ཀ
+    </div>
+    <button id="audioBtn" class="audio-btn" aria-label="Ouvir som">
+        <i class="fas fa-volume-up"></i>
+    </button>
+</div>
                 
                 <div class="options-container" id="optionsContainer">
                     <!-- Opções de resposta serão geradas por JavaScript -->
@@ -632,6 +686,62 @@
             incorrectCount: 0,
             gameActive: false
         };
+
+        // Adicione essas variáveis no início do script (após appState)
+let audioPlayer = null;
+let isPlaying = false;
+
+// Adicione esta função para criar/controlar o áudio
+function playAudioSegment(audioData) {
+    // Parar áudio atual se estiver tocando
+    if (audioPlayer && !audioPlayer.paused) {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+    }
+    
+    // Criar novo player de áudio
+    audioPlayer = new Audio(audioData.file);
+    
+    // Configurar eventos
+    audioPlayer.addEventListener('loadedmetadata', function() {
+        // Definir o tempo inicial
+        this.currentTime = audioData.start;
+        
+        // Configurar para parar no tempo final
+        const playSegment = () => {
+            if (this.currentTime >= audioData.end) {
+                this.pause();
+                this.currentTime = audioData.start;
+                isPlaying = false;
+                document.getElementById('audioBtn').classList.remove('playing');
+                document.getElementById('audioBtn').innerHTML = '<i class="fas fa-volume-up"></i>';
+            }
+        };
+        
+        // Verificar periodicamente
+        this.addEventListener('timeupdate', playSegment);
+        
+        // Iniciar reprodução
+        this.play()
+            .then(() => {
+                isPlaying = true;
+                document.getElementById('audioBtn').classList.add('playing');
+                document.getElementById('audioBtn').innerHTML = '<i class="fas fa-stop"></i>';
+            })
+            .catch(error => {
+                console.error("Erro ao reproduzir áudio:", error);
+                alert("Não foi possível reproduzir o áudio. Verifique se o arquivo existe.");
+            });
+    });
+    
+    // Lidar com erro de carregamento
+    audioPlayer.addEventListener('error', function() {
+        console.error("Erro ao carregar áudio:", audioData.file);
+        alert(`Arquivo de áudio não encontrado: ${audioData.file}`);
+        document.getElementById('audioBtn').classList.remove('playing');
+        document.getElementById('audioBtn').innerHTML = '<i class="fas fa-volume-up"></i>';
+    });
+}
 
         // Elementos DOM
         const configSection = document.getElementById('configSection');
@@ -764,19 +874,30 @@
             }
         }
 
-        // Gerar uma nova pergunta
         function generateNewQuestion() {
-            if (appState.allLetters.length === 0) {
-                currentSyllableElement.textContent = "Selecione grupos na configuração";
-                optionsContainer.innerHTML = '<p class="option-btn">Selecione grupos de letras na configuração</p>';
-                return;
-            }
-            
-            // Selecionar uma sílaba aleatória
-            const randomIndex = Math.floor(Math.random() * appState.allLetters.length);
-            appState.currentSyllable = appState.allLetters[randomIndex];
-            currentSyllableElement.textContent = appState.currentSyllable.syllable;
-            appState.correctAnswer = appState.currentSyllable.sound;
+    if (appState.allLetters.length === 0) {
+        currentSyllableElement.textContent = "Selecione grupos na configuração";
+        optionsContainer.innerHTML = '<p class="option-btn">Selecione grupos de letras na configuração</p>';
+        return;
+    }
+    
+    // Selecionar uma sílaba aleatória
+    const randomIndex = Math.floor(Math.random() * appState.allLetters.length);
+    appState.currentSyllable = appState.allLetters[randomIndex];
+    currentSyllableElement.textContent = appState.currentSyllable.syllable;
+    appState.correctAnswer = appState.currentSyllable.sound;
+    
+    // Parar áudio atual se estiver tocando
+    if (audioPlayer && !audioPlayer.paused) {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        isPlaying = false;
+        const audioBtn = document.getElementById('audioBtn');
+        if (audioBtn) {
+            audioBtn.classList.remove('playing');
+            audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        }
+    }
             
             // Gerar opções de resposta
             appState.currentOptions = [appState.correctAnswer];
@@ -1010,6 +1131,40 @@
             
             // Mostrar instruções iniciais
             switchToMode('config');
+
+            // Adicione este event listener no final do initApp()
+document.addEventListener('DOMContentLoaded', function() {
+    initApp();
+    
+    // Configurar botão de áudio
+    const audioBtn = document.getElementById('audioBtn');
+    if (audioBtn) {
+        audioBtn.addEventListener('click', function() {
+            if (appState.currentSyllable && appState.currentSyllable.audio) {
+                if (isPlaying && audioPlayer && !audioPlayer.paused) {
+                    // Parar áudio se estiver tocando
+                    audioPlayer.pause();
+                    audioPlayer.currentTime = 0;
+                    isPlaying = false;
+                    this.classList.remove('playing');
+                    this.innerHTML = '<i class="fas fa-volume-up"></i>';
+                } else {
+                    // Iniciar reprodução
+                    playAudioSegment(appState.currentSyllable.audio);
+                }
+            } else {
+                alert("Áudio não disponível para esta sílaba");
+            }
+        });
+        
+        // Para suporte mobile
+        audioBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            this.click();
+        });
+    }
+});
+
         }
 
         // Inicializar quando a página carregar
