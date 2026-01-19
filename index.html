@@ -1111,61 +1111,54 @@
             }
         }
 
-        // Função para tocar segmento de áudio
-        function playAudioSegment() {
-            if (!appState.currentSyllable || !appState.currentSyllable.audio) {
-                alert("Áudio não disponível para esta sílaba");
-                return;
-            }
-            
-            const audioData = appState.currentSyllable.audio;
-            
-            // Parar áudio atual se estiver tocando
-            stopAudio();
-            
-            // Criar novo player de áudio
-            audioPlayer = new Audio(audioData.file);
-            
-            // Configurar eventos
-            audioPlayer.addEventListener('canplaythrough', function() {
-                // Definir o tempo inicial
-                this.currentTime = audioData.start;
+        // Solução SIMPLES que funciona na maioria dos dispositivos
+function playAudioSegment() {
+    if (!appState.currentSyllable || !appState.currentSyllable.audio) {
+        console.log("Sem dados de áudio");
+        return;
+    }
+    
+    const audioData = appState.currentSyllable.audio;
+    
+    // Parar áudio atual
+    stopAudio();
+    
+    // Criar novo player
+    audioPlayer = new Audio(audioData.file);
+    
+    // Configurar tempo inicial quando possível tocar
+    audioPlayer.addEventListener('canplay', function() {
+        this.currentTime = audioData.start;
+    }, { once: true });
+    
+    // Tentar tocar
+    const playPromise = audioPlayer.play();
+    
+    if (playPromise !== undefined) {
+        playPromise
+            .then(() => {
+                isPlaying = true;
+                audioBtn.classList.add('playing');
+                audioBtn.innerHTML = '<i class="fas fa-stop"></i>';
                 
-                // Tentar reproduzir
-                const playPromise = this.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise
-                        .then(() => {
-                            isPlaying = true;
-                            audioBtn.classList.add('playing');
-                            audioBtn.innerHTML = '<i class="fas fa-stop"></i>';
-                            audioBtn.setAttribute('aria-label', 'Parar áudio');
-                            
-                            // Iniciar verificação do tempo
-                            audioCheckInterval = setInterval(checkAudioTime, 100);
-                        })
-                        .catch(error => {
-                            console.error("Erro ao reproduzir áudio:", error);
-                            // Para iOS/mobile, precisamos de interação do usuário
-                            if (error.name === 'NotAllowedError') {
-                                alert("Toque novamente no botão para reproduzir o áudio");
-                            }
-                            resetAudioButton();
-                        });
-                }
+                // Verificar quando parar
+                audioCheckInterval = setInterval(() => {
+                    if (audioPlayer.currentTime >= audioData.end || audioPlayer.ended) {
+                        stopAudio();
+                    }
+                }, 50); // Verificar mais frequentemente
+            })
+            .catch(error => {
+                console.error("Erro ao tocar:", error);
+                // Fallback: tocar áudio completo
+                audioPlayer.currentTime = 0;
+                audioPlayer.play().catch(e => {
+                    alert("Clique novamente para ouvir");
+                    resetAudioButton();
+                });
             });
-            
-            audioPlayer.addEventListener('error', function() {
-                console.error("Erro ao carregar áudio:", audioData.file);
-                alert(`Não foi possível carregar o áudio para "${appState.currentSyllable.syllable}"`);
-                resetAudioButton();
-            });
-            
-            audioPlayer.addEventListener('ended', function() {
-                stopAudio();
-            });
-        }
+    }
+}
         
         // Verificar tempo do áudio
         function checkAudioTime() {
