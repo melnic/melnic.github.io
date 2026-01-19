@@ -66,55 +66,6 @@
             margin-bottom: 5px;
             font-weight: 700;
         }
-
-        .audio-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 10px 0;
-    gap: 15px;
-}
-
-.audio-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.audio-btn:hover {
-    background-color: var(--secondary-color);
-    transform: scale(1.05);
-}
-
-.audio-btn.playing {
-    background-color: var(--accent-color);
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-/* Para mobile */
-@media (max-width: 768px) {
-    .audio-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 1.3rem;
-    }
-}
         
         .subtitle {
             font-size: 0.85rem;
@@ -257,17 +208,58 @@
             color: white;
         }
         
+        .syllable-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        
         .tibetan-syllable {
             font-size: 4rem;
             font-weight: bold;
-            margin: 20px 0;
             color: var(--dark-color);
             text-align: center;
             min-height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
+        }
+        
+        .audio-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            touch-action: manipulation;
+        }
+        
+        .audio-btn:hover, .audio-btn:active {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+        
+        .audio-btn.playing {
+            background-color: var(--accent-color);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
         
         .options-container {
@@ -468,14 +460,18 @@
                 min-width: auto;
                 flex: none;
             }
-        }
-        
-        @media (min-width: 1024px) {
+            
             .tibetan-syllable {
                 font-size: 5rem;
                 min-height: 120px;
             }
             
+            .syllable-container {
+                gap: 20px;
+            }
+        }
+        
+        @media (min-width: 1024px) {
             .options-container {
                 gap: 15px;
             }
@@ -496,6 +492,12 @@
             .tibetan-syllable {
                 font-size: 3.5rem;
                 min-height: 90px;
+            }
+            
+            .audio-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
             }
             
             .btn {
@@ -526,6 +528,12 @@
             
             .options-container {
                 margin-top: 10px;
+            }
+            
+            .audio-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
             }
         }
     </style>
@@ -568,14 +576,14 @@
             <section id="gameSection" class="content hidden">
                 <h2>Qual é o som desta sílaba?</h2>
                 
-                <div class="audio-container">
-    <div class="tibetan-syllable" id="currentSyllable">
-        ཀ
-    </div>
-    <button id="audioBtn" class="audio-btn" aria-label="Ouvir som">
-        <i class="fas fa-volume-up"></i>
-    </button>
-</div>
+                <div class="syllable-container">
+                    <div class="tibetan-syllable" id="currentSyllable">
+                        ཀ
+                    </div>
+                    <button id="audioBtn" class="audio-btn" aria-label="Ouvir som da sílaba">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
                 
                 <div class="options-container" id="optionsContainer">
                     <!-- Opções de resposta serão geradas por JavaScript -->
@@ -612,7 +620,8 @@
                     <ol>
                         <li>Na <strong>Configuração</strong>, selecione grupos de letras para praticar.</li>
                         <li>Toque em <strong>"Jogo"</strong> para começar a praticar.</li>
-                        <li>Uma sílaba tibetana será exibida. Toque no som correto.</li>
+                        <li>Uma sílaba tibetana será exibida. Toque no botão de som para ouvi-la.</li>
+                        <li>Toque no som correto entre as opções.</li>
                         <li>Você verá feedback imediato sobre sua resposta.</li>
                         <li>Acompanhe sua pontuação nos contadores.</li>
                     </ol>
@@ -623,55 +632,350 @@
     </div>
 
     <script>
-        // Dados das letras tibetanas agrupadas por categoria
+        // Dados das letras tibetanas com áudio
         const tibetanLetters = {
             "Vogais": [
-                { syllable: "ཨི", sound: "i", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཨེ", sound: "e", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཨ", sound: "a", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཨོ", sound: "o", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཨུ", sound: "u", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  }
+                { 
+                    syllable: "ཨི", 
+                    sound: "i",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཨེ", 
+                    sound: "e",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཨ", 
+                    sound: "a",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཨོ", 
+                    sound: "o",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཨུ", 
+                    sound: "u",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                }
             ],
-            
             "Consoantes Básicas": [
-                { syllable: "ཀ", sound: "ka", audio: {file: "tibetan_audio.mp3", start: 2.6, end: 3.6 } },
-                { syllable: "ཁ", sound: "kha", audio: {file: "tibetan_audio.mp3", start: 4.1, end: 4.9 }  },
-                { syllable: "ག", sound: "ga", audio: {file: "tibetan_audio.mp3", start: 5.5, end: 6.6 }  },
-                { syllable: "ང", sound: "nga", audio: {file: "tibetan_audio.mp3", start: 6.8, end: 7.6 }  },
-                { syllable: "ཅ", sound: "cha", audio: {file: "tibetan_audio.mp3", start: 8.3, end: 9 }  },
-                { syllable: "ཆ", sound: "chha", audio: {file: "tibetan_audio.mp3", start: 9.6, end: 10.4 }  },
-                { syllable: "ཇ", sound: "ja", audio: {file: "tibetan_audio.mp3", start: 10.9, end: 11.8 }  },
-                { syllable: "ཉ", sound: "nya", audio: {file: "tibetan_audio.mp3", start: 12.3, end: 13.1 }  }
+                { 
+                    syllable: "ཀ", 
+                    sound: "ka",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཁ", 
+                    sound: "kha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ག", 
+                    sound: "ga",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ང", 
+                    sound: "nga",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཅ", 
+                    sound: "cha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཆ", 
+                    sound: "chha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཇ", 
+                    sound: "ja",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཉ", 
+                    sound: "nya",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                }
             ],
             "Consoantes Intermediárias": [
-                { syllable: "ཏ", sound: "ta", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཐ", sound: "tha", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ད", sound: "da", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ན", sound: "na", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "པ", sound: "pa", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཕ", sound: "pha", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "བ", sound: "ba", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "མ", sound: "ma", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  }
+                { 
+                    syllable: "ཏ", 
+                    sound: "ta",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཐ", 
+                    sound: "tha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ད", 
+                    sound: "da",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ན", 
+                    sound: "na",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "པ", 
+                    sound: "pa",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཕ", 
+                    sound: "pha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "བ", 
+                    sound: "ba",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "མ", 
+                    sound: "ma",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                }
             ],
             "Consoantes Avançadas": [
-                { syllable: "ཙ", sound: "tsa", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཚ", sound: "tsha", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཛ", sound: "dza", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཝ", sound: "wa", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཞ", sound: "zha", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཟ", sound: "za", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཡ", sound: "ya", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ར", sound: "ra", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  }
+                { 
+                    syllable: "ཙ", 
+                    sound: "tsa",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཚ", 
+                    sound: "tsha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཛ", 
+                    sound: "dza",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཝ", 
+                    sound: "wa",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཞ", 
+                    sound: "zha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཟ", 
+                    sound: "za",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཡ", 
+                    sound: "ya",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ར", 
+                    sound: "ra",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                }
             ],
             "Consoantes Complexas": [
-                { syllable: "ལ", sound: "la", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཤ", sound: "sha", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ས", sound: "sa", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཧ", sound: "ha", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཨ", sound: "a", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཀྱ", sound: "kya", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "ཁྱ", sound: "khya", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  },
-                { syllable: "གྱ", sound: "gya", audio: {file: "tibetan_audio.mp3", start: 0.5, end: 1.2 }  }
+                { 
+                    syllable: "ལ", 
+                    sound: "la",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཤ", 
+                    sound: "sha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ས", 
+                    sound: "sa",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཧ", 
+                    sound: "ha",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཨ", 
+                    sound: "a",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཀྱ", 
+                    sound: "kya",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "ཁྱ", 
+                    sound: "khya",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                },
+                { 
+                    syllable: "གྱ", 
+                    sound: "gya",
+                    audio: {
+                        file: "https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3",
+                        start: 0,
+                        end: 1
+                    }
+                }
             ]
         };
 
@@ -686,62 +990,6 @@
             incorrectCount: 0,
             gameActive: false
         };
-
-        // Adicione essas variáveis no início do script (após appState)
-let audioPlayer = null;
-let isPlaying = false;
-
-// Adicione esta função para criar/controlar o áudio
-function playAudioSegment(audioData) {
-    // Parar áudio atual se estiver tocando
-    if (audioPlayer && !audioPlayer.paused) {
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0;
-    }
-    
-    // Criar novo player de áudio
-    audioPlayer = new Audio(audioData.file);
-    
-    // Configurar eventos
-    audioPlayer.addEventListener('loadedmetadata', function() {
-        // Definir o tempo inicial
-        this.currentTime = audioData.start;
-        
-        // Configurar para parar no tempo final
-        const playSegment = () => {
-            if (this.currentTime >= audioData.end) {
-                this.pause();
-                this.currentTime = audioData.start;
-                isPlaying = false;
-                document.getElementById('audioBtn').classList.remove('playing');
-                document.getElementById('audioBtn').innerHTML = '<i class="fas fa-volume-up"></i>';
-            }
-        };
-        
-        // Verificar periodicamente
-        this.addEventListener('timeupdate', playSegment);
-        
-        // Iniciar reprodução
-        this.play()
-            .then(() => {
-                isPlaying = true;
-                document.getElementById('audioBtn').classList.add('playing');
-                document.getElementById('audioBtn').innerHTML = '<i class="fas fa-stop"></i>';
-            })
-            .catch(error => {
-                console.error("Erro ao reproduzir áudio:", error);
-                alert("Não foi possível reproduzir o áudio. Verifique se o arquivo existe.");
-            });
-    });
-    
-    // Lidar com erro de carregamento
-    audioPlayer.addEventListener('error', function() {
-        console.error("Erro ao carregar áudio:", audioData.file);
-        alert(`Arquivo de áudio não encontrado: ${audioData.file}`);
-        document.getElementById('audioBtn').classList.remove('playing');
-        document.getElementById('audioBtn').innerHTML = '<i class="fas fa-volume-up"></i>';
-    });
-}
 
         // Elementos DOM
         const configSection = document.getElementById('configSection');
@@ -759,6 +1007,12 @@ function playAudioSegment(audioData) {
         const scoreElement = document.getElementById('score');
         const correctCountElement = document.getElementById('correctCount');
         const incorrectCountElement = document.getElementById('incorrectCount');
+        const audioBtn = document.getElementById('audioBtn');
+
+        // Variáveis de áudio
+        let audioPlayer = null;
+        let isPlaying = false;
+        let audioCheckInterval = null;
 
         // Inicializar grupos de letras
         function initializeLetterGroups() {
@@ -792,23 +1046,6 @@ function playAudioSegment(audioData) {
                         this.innerHTML = '<i class="fas fa-eye"></i>';
                         this.setAttribute('aria-label', `Mostrar letras do grupo ${groupName}`);
                     }
-                });
-                
-                // Toque longo para mostrar/ocultar
-                let tapTimer;
-                toggleBtn.addEventListener('touchstart', function(e) {
-                    tapTimer = setTimeout(() => {
-                        e.preventDefault();
-                        this.click();
-                    }, 500);
-                });
-                
-                toggleBtn.addEventListener('touchend', function() {
-                    clearTimeout(tapTimer);
-                });
-                
-                toggleBtn.addEventListener('touchmove', function() {
-                    clearTimeout(tapTimer);
                 });
                 
                 groupHeader.appendChild(groupTitle);
@@ -874,30 +1111,112 @@ function playAudioSegment(audioData) {
             }
         }
 
-        function generateNewQuestion() {
-    if (appState.allLetters.length === 0) {
-        currentSyllableElement.textContent = "Selecione grupos na configuração";
-        optionsContainer.innerHTML = '<p class="option-btn">Selecione grupos de letras na configuração</p>';
-        return;
-    }
-    
-    // Selecionar uma sílaba aleatória
-    const randomIndex = Math.floor(Math.random() * appState.allLetters.length);
-    appState.currentSyllable = appState.allLetters[randomIndex];
-    currentSyllableElement.textContent = appState.currentSyllable.syllable;
-    appState.correctAnswer = appState.currentSyllable.sound;
-    
-    // Parar áudio atual se estiver tocando
-    if (audioPlayer && !audioPlayer.paused) {
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0;
-        isPlaying = false;
-        const audioBtn = document.getElementById('audioBtn');
-        if (audioBtn) {
+        // Função para tocar segmento de áudio
+        function playAudioSegment() {
+            if (!appState.currentSyllable || !appState.currentSyllable.audio) {
+                alert("Áudio não disponível para esta sílaba");
+                return;
+            }
+            
+            const audioData = appState.currentSyllable.audio;
+            
+            // Parar áudio atual se estiver tocando
+            stopAudio();
+            
+            // Criar novo player de áudio
+            audioPlayer = new Audio(audioData.file);
+            
+            // Configurar eventos
+            audioPlayer.addEventListener('canplaythrough', function() {
+                // Definir o tempo inicial
+                this.currentTime = audioData.start;
+                
+                // Tentar reproduzir
+                const playPromise = this.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            isPlaying = true;
+                            audioBtn.classList.add('playing');
+                            audioBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                            audioBtn.setAttribute('aria-label', 'Parar áudio');
+                            
+                            // Iniciar verificação do tempo
+                            audioCheckInterval = setInterval(checkAudioTime, 100);
+                        })
+                        .catch(error => {
+                            console.error("Erro ao reproduzir áudio:", error);
+                            // Para iOS/mobile, precisamos de interação do usuário
+                            if (error.name === 'NotAllowedError') {
+                                alert("Toque novamente no botão para reproduzir o áudio");
+                            }
+                            resetAudioButton();
+                        });
+                }
+            });
+            
+            audioPlayer.addEventListener('error', function() {
+                console.error("Erro ao carregar áudio:", audioData.file);
+                alert(`Não foi possível carregar o áudio para "${appState.currentSyllable.syllable}"`);
+                resetAudioButton();
+            });
+            
+            audioPlayer.addEventListener('ended', function() {
+                stopAudio();
+            });
+        }
+        
+        // Verificar tempo do áudio
+        function checkAudioTime() {
+            if (!audioPlayer || !appState.currentSyllable || !appState.currentSyllable.audio) return;
+            
+            const audioData = appState.currentSyllable.audio;
+            
+            if (audioPlayer.currentTime >= audioData.end) {
+                stopAudio();
+            }
+        }
+        
+        // Parar áudio
+        function stopAudio() {
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+            
+            if (audioCheckInterval) {
+                clearInterval(audioCheckInterval);
+                audioCheckInterval = null;
+            }
+            
+            resetAudioButton();
+        }
+        
+        // Resetar botão de áudio
+        function resetAudioButton() {
+            isPlaying = false;
             audioBtn.classList.remove('playing');
             audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            audioBtn.setAttribute('aria-label', 'Ouvir som da sílaba');
         }
-    }
+
+        // Gerar uma nova pergunta
+        function generateNewQuestion() {
+            if (appState.allLetters.length === 0) {
+                currentSyllableElement.textContent = "Selecione grupos na configuração";
+                optionsContainer.innerHTML = '<p class="option-btn">Selecione grupos de letras na configuração</p>';
+                return;
+            }
+            
+            // Selecionar uma sílaba aleatória
+            const randomIndex = Math.floor(Math.random() * appState.allLetters.length);
+            appState.currentSyllable = appState.allLetters[randomIndex];
+            currentSyllableElement.textContent = appState.currentSyllable.syllable;
+            appState.correctAnswer = appState.currentSyllable.sound;
+            
+            // Parar áudio atual se estiver tocando
+            stopAudio();
             
             // Gerar opções de resposta
             appState.currentOptions = [appState.correctAnswer];
@@ -959,9 +1278,6 @@ function playAudioSegment(audioData) {
                     appState.correctCount++;
                     scoreElement.textContent = appState.score;
                     correctCountElement.textContent = appState.correctCount;
-                    
-                    // Feedback sonoro (se desejado)
-                    // new Audio('correct-sound.mp3').play();
                 } else {
                     button.classList.add('incorrect');
                     button.setAttribute('aria-label', `Incorreto: ${sound}`);
@@ -1019,6 +1335,7 @@ function playAudioSegment(audioData) {
                 gameSection.classList.add('hidden');
                 instructions.classList.remove('hidden');
                 appState.gameActive = false;
+                stopAudio();
                 
                 // Focar no primeiro elemento interativo para acessibilidade
                 setTimeout(() => {
@@ -1031,11 +1348,11 @@ function playAudioSegment(audioData) {
                 gameSection.classList.remove('hidden');
                 configSection.classList.add('hidden');
                 instructions.classList.add('hidden');
+                stopAudio();
                 
-                // Focar na primeira opção de resposta
+                // Focar no botão de áudio para acessibilidade
                 setTimeout(() => {
-                    const firstOption = document.querySelector('.option-btn');
-                    if (firstOption) firstOption.focus();
+                    audioBtn.focus();
                 }, 100);
             }
         }
@@ -1082,6 +1399,24 @@ function playAudioSegment(audioData) {
             }
         });
 
+        // Botão de áudio
+        audioBtn.addEventListener('click', function() {
+            if (isPlaying) {
+                stopAudio();
+            } else {
+                playAudioSegment();
+            }
+        });
+
+        audioBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            if (isPlaying) {
+                stopAudio();
+            } else {
+                playAudioSegment();
+            }
+        });
+
         // Função para reiniciar o jogo
         function resetGame() {
             appState.score = 0;
@@ -1090,6 +1425,7 @@ function playAudioSegment(audioData) {
             scoreElement.textContent = appState.score;
             correctCountElement.textContent = appState.correctCount;
             incorrectCountElement.textContent = appState.incorrectCount;
+            stopAudio();
             generateNewQuestion();
         }
 
@@ -1102,9 +1438,9 @@ function playAudioSegment(audioData) {
 
         // Suporte para teclado (acessibilidade)
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
-                e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-                // Navegação por teclado pode ser implementada aqui
+            if (e.key === ' ' && document.activeElement === audioBtn) {
+                e.preventDefault();
+                audioBtn.click();
             }
         });
 
@@ -1119,6 +1455,11 @@ function playAudioSegment(audioData) {
             }
         }
 
+        // Limpar áudio quando a página for fechada
+        window.addEventListener('beforeunload', function() {
+            stopAudio();
+        });
+
         // Inicializar aplicativo
         function initApp() {
             initializeLetterGroups();
@@ -1131,40 +1472,6 @@ function playAudioSegment(audioData) {
             
             // Mostrar instruções iniciais
             switchToMode('config');
-
-            // Adicione este event listener no final do initApp()
-document.addEventListener('DOMContentLoaded', function() {
-    initApp();
-    
-    // Configurar botão de áudio
-    const audioBtn = document.getElementById('audioBtn');
-    if (audioBtn) {
-        audioBtn.addEventListener('click', function() {
-            if (appState.currentSyllable && appState.currentSyllable.audio) {
-                if (isPlaying && audioPlayer && !audioPlayer.paused) {
-                    // Parar áudio se estiver tocando
-                    audioPlayer.pause();
-                    audioPlayer.currentTime = 0;
-                    isPlaying = false;
-                    this.classList.remove('playing');
-                    this.innerHTML = '<i class="fas fa-volume-up"></i>';
-                } else {
-                    // Iniciar reprodução
-                    playAudioSegment(appState.currentSyllable.audio);
-                }
-            } else {
-                alert("Áudio não disponível para esta sílaba");
-            }
-        });
-        
-        // Para suporte mobile
-        audioBtn.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            this.click();
-        });
-    }
-});
-
         }
 
         // Inicializar quando a página carregar
