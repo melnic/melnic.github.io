@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aprendizado de Escrita Tibetana</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #ff6b6b;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #51cf66;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            position: relative;
+            padding-top: max(15px, env(safe-area-inset-top));
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .app-mode {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .mode-btn:hover, .mode-btn:active {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .mode-btn.active {
+            background-color: white;
+            color: var(--primary-color);
+        }
+        
+        main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 100%;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            overflow-y: auto;
+            max-height: 50vh;
+            flex-shrink: 0;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-y: auto;
+            padding-bottom: max(20px, calc(20px + var(--safe-area-inset-bottom)));
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+            font-size: 1.3rem;
+        }
+        
+        h3 {
+            color: var(--dark-color);
+            margin: 12px 0 8px;
+            font-size: 1.1rem;
+        }
+        
+        .letter-group {
+            background-color: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .group-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 5px 8px;
+            white-space: nowrap;
+        }
+        
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        
+        .letter {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--dark-color);
+            cursor: default;
+            transition: all 0.2s;
+        }
+        
+        .letter.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .tibetan-syllable {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 20px 0;
+            color: var(--dark-color);
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 15px;
+        }
+        
+        .option-btn {
+            padding: 16px;
+            background-color: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 600;
+            width: 100%;
+            touch-action: manipulation;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option-btn:hover, .option-btn:active {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .option-btn.correct {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+        
+        .option-btn.incorrect {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+            max-width: 500px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 140px;
+            touch-action: manipulation;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover, .btn-primary:active {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--dark-color);
+        }
+        
+        .btn-secondary:hover, .btn-secondary:active {
+            background-color: #dee2e6;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .instructions h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        /* Melhorias para telas maiores */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 10px auto;
+                border-radius: 12px;
+                box-shadow: var(--shadow);
+                min-height: calc(100vh - 20px);
+            }
+            
+            header {
+                padding: 20px;
+                padding-top: max(20px, env(safe-area-inset-top));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .app-mode {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                margin-top: 0;
+                width: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .mode-btn {
+                max-width: none;
+                flex: none;
+            }
+            
+            main {
+                flex-direction: row;
+            }
+            
+            .sidebar {
+                width: 300px;
+                max-height: none;
+                border-right: 1px solid #e9ecef;
+                border-bottom: none;
+            }
+            
+            .content {
+                padding: 30px;
+            }
+            
+            .options-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .btn {
+                min-width: auto;
+                flex: none;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .tibetan-syllable {
+                font-size: 5rem;
+                min-height: 120px;
+            }
+            
+            .options-container {
+                gap: 15px;
+            }
+            
+            .option-btn {
+                padding: 18px;
+            }
+        }
+        
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 360px) {
+            .letter {
+                width: 32px;
+                height: 32px;
+                font-size: 1.2rem;
+            }
+            
+            .tibetan-syllable {
+                font-size: 3.5rem;
+                min-height: 90px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                min-width: 120px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Prevenir zoom em inputs no iOS */
+        @media screen and (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px;
+            }
+        }
+        
+        /* Melhorias para orientação paisagem */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .sidebar {
+                max-height: 70vh;
+            }
+            
+            .tibetan-syllable {
+                font-size: 3rem;
+                min-height: 70px;
+                margin: 10px 0;
+            }
+            
+            .options-container {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-mountain"></i> Escrita Tibetana</h1>
+            <p class="subtitle">Pratique sílabas tibetanas e seus sons</p>
+            
+            <div class="app-mode">
+                <button id="configModeBtn" class="mode-btn active">
+                    <i class="fas fa-cog"></i> Configuração
+                </button>
+                <button id="gameModeBtn" class="mode-btn">
+                    <i class="fas fa-gamepad"></i> Jogo
+                </button>
+            </div>
+        </header>
+        
+        <main>
+            <section id="configSection" class="sidebar">
+                <h2><i class="fas fa-sliders-h"></i> Configuração</h2>
+                <p>Selecione os grupos para praticar:</p>
+                
+                <div id="letterGroups">
+                    <!-- Grupos de letras serão gerados por JavaScript -->
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="selectAllBtn" class="btn btn-secondary">
+                        <i class="fas fa-check-square"></i> Selecionar Todos
+                    </button>
+                    <button id="deselectAllBtn" class="btn btn-secondary">
+                        <i class="far fa-square"></i> Desmarcar Todos
+                    </button>
+                </div>
+            </section>
+            
+            <section id="gameSection" class="content hidden">
+                <h2>Qual é o som desta sílaba?</h2>
+                
+                <div class="tibetan-syllable" id="currentSyllable">
+                    ཀ
+                </div>
+                
+                <div class="options-container" id="optionsContainer">
+                    <!-- Opções de resposta serão geradas por JavaScript -->
+                </div>
+                
+                <div class="game-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="score">0</div>
+                        <div class="stat-label">Pontuação</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="correctCount">0</div>
+                        <div class="stat-label">Acertos</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="incorrectCount">0</div>
+                        <div class="stat-label">Erros</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="nextQuestionBtn" class="btn btn-primary">
+                        <i class="fas fa-forward"></i> Próxima
+                    </button>
+                    <button id="resetGameBtn" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Reiniciar
+                    </button>
+                </div>
+            </section>
+            
+            <section id="instructions" class="content">
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> Como usar</h3>
+                    <ol>
+                        <li>Na <strong>Configuração</strong>, selecione grupos de letras para praticar.</li>
+                        <li>Toque em <strong>"Jogo"</strong> para começar a praticar.</li>
+                        <li>Uma sílaba tibetana será exibida. Toque no som correto.</li>
+                        <li>Você verá feedback imediato sobre sua resposta.</li>
+                        <li>Acompanhe sua pontuação nos contadores.</li>
+                    </ol>
+                    <p><strong>Dica:</strong> Comece com poucos grupos e vá adicionando mais.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Dados das letras tibetanas agrupadas por categoria
+        const tibetanLetters = {
+            "Vogais": [
+                { syllable: "ཨི", sound: "i" },
+                { syllable: "ཨེ", sound: "e" },
+                { syllable: "ཨ", sound: "a" },
+                { syllable: "ཨོ", sound: "o" },
+                { syllable: "ཨུ", sound: "u" }
+            ],
+            "Consoantes Básicas": [
+                { syllable: "ཀ", sound: "ka" },
+                { syllable: "ཁ", sound: "kha" },
+                { syllable: "ག", sound: "ga" },
+                { syllable: "ང", sound: "nga" },
+                { syllable: "ཅ", sound: "cha" },
+                { syllable: "ཆ", sound: "chha" },
+                { syllable: "ཇ", sound: "ja" },
+                { syllable: "ཉ", sound: "nya" }
+            ],
+            "Consoantes Intermediárias": [
+                { syllable: "ཏ", sound: "ta" },
+                { syllable: "ཐ", sound: "tha" },
+                { syllable: "ད", sound: "da" },
+                { syllable: "ན", sound: "na" },
+                { syllable: "པ", sound: "pa" },
+                { syllable: "ཕ", sound: "pha" },
+                { syllable: "བ", sound: "ba" },
+                { syllable: "མ", sound: "ma" }
+            ],
+            "Consoantes Avançadas": [
+                { syllable: "ཙ", sound: "tsa" },
+                { syllable: "ཚ", sound: "tsha" },
+                { syllable: "ཛ", sound: "dza" },
+                { syllable: "ཝ", sound: "wa" },
+                { syllable: "ཞ", sound: "zha" },
+                { syllable: "ཟ", sound: "za" },
+                { syllable: "ཡ", sound: "ya" },
+                { syllable: "ར", sound: "ra" }
+            ],
+            "Consoantes Complexas": [
+                { syllable: "ལ", sound: "la" },
+                { syllable: "ཤ", sound: "sha" },
+                { syllable: "ས", sound: "sa" },
+                { syllable: "ཧ", sound: "ha" },
+                { syllable: "ཨ", sound: "a" },
+                { syllable: "ཀྱ", sound: "kya" },
+                { syllable: "ཁྱ", sound: "khya" },
+                { syllable: "གྱ", sound: "gya" }
+            ]
+        };
+
+        // Estado do aplicativo
+        const appState = {
+            selectedGroups: new Set(Object.keys(tibetanLetters)),
+            currentSyllable: null,
+            currentOptions: [],
+            correctAnswer: null,
+            score: 0,
+            correctCount: 0,
+            incorrectCount: 0,
+            gameActive: false
+        };
+
+        // Elementos DOM
+        const configSection = document.getElementById('configSection');
+        const gameSection = document.getElementById('gameSection');
+        const instructions = document.getElementById('instructions');
+        const configModeBtn = document.getElementById('configModeBtn');
+        const gameModeBtn = document.getElementById('gameModeBtn');
+        const letterGroupsContainer = document.getElementById('letterGroups');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deselectAllBtn = document.getElementById('deselectAllBtn');
+        const currentSyllableElement = document.getElementById('currentSyllable');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        const resetGameBtn = document.getElementById('resetGameBtn');
+        const scoreElement = document.getElementById('score');
+        const correctCountElement = document.getElementById('correctCount');
+        const incorrectCountElement = document.getElementById('incorrectCount');
+
+        // Inicializar grupos de letras
+        function initializeLetterGroups() {
+            letterGroupsContainer.innerHTML = '';
+            
+            for (const [groupName, letters] of Object.entries(tibetanLetters)) {
+                const groupElement = document.createElement('div');
+                groupElement.className = 'letter-group';
+                
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'group-header';
+                
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'group-title';
+                groupTitle.textContent = `${groupName} (${letters.length})`;
+                
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'toggle-btn';
+                toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                toggleBtn.dataset.group = groupName;
+                toggleBtn.setAttribute('aria-label', `Mostrar letras do grupo ${groupName}`);
+                
+                toggleBtn.addEventListener('click', function() {
+                    const lettersContainer = this.nextElementSibling;
+                    if (lettersContainer.classList.contains('hidden')) {
+                        lettersContainer.classList.remove('hidden');
+                        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                        this.setAttribute('aria-label', `Ocultar letras do grupo ${groupName}`);
+                    } else {
+                        lettersContainer.classList.add('hidden');
+                        this.innerHTML = '<i class="fas fa-eye"></i>';
+                        this.setAttribute('aria-label', `Mostrar letras do grupo ${groupName}`);
+                    }
+                });
+                
+                // Toque longo para mostrar/ocultar
+                let tapTimer;
+                toggleBtn.addEventListener('touchstart', function(e) {
+                    tapTimer = setTimeout(() => {
+                        e.preventDefault();
+                        this.click();
+                    }, 500);
+                });
+                
+                toggleBtn.addEventListener('touchend', function() {
+                    clearTimeout(tapTimer);
+                });
+                
+                toggleBtn.addEventListener('touchmove', function() {
+                    clearTimeout(tapTimer);
+                });
+                
+                groupHeader.appendChild(groupTitle);
+                groupHeader.appendChild(toggleBtn);
+                
+                const lettersContainer = document.createElement('div');
+                lettersContainer.className = 'letters-container hidden';
+                
+                letters.forEach(letter => {
+                    const letterElement = document.createElement('div');
+                    letterElement.className = 'letter';
+                    letterElement.textContent = letter.syllable;
+                    letterElement.setAttribute('aria-label', `Sílaba ${letter.syllable}, som ${letter.sound}`);
+                    lettersContainer.appendChild(letterElement);
+                });
+                
+                const checkboxContainer = document.createElement('div');
+                checkboxContainer.style.marginTop = '10px';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `group-${groupName}`;
+                checkbox.checked = appState.selectedGroups.has(groupName);
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        appState.selectedGroups.add(groupName);
+                    } else {
+                        appState.selectedGroups.delete(groupName);
+                    }
+                    updateGameData();
+                });
+                
+                const label = document.createElement('label');
+                label.htmlFor = `group-${groupName}`;
+                label.textContent = ` Incluir no jogo`;
+                label.style.marginLeft = '5px';
+                label.style.cursor = 'pointer';
+                label.style.fontSize = '0.9rem';
+                
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(label);
+                
+                groupElement.appendChild(groupHeader);
+                groupElement.appendChild(lettersContainer);
+                groupElement.appendChild(checkboxContainer);
+                letterGroupsContainer.appendChild(groupElement);
+            }
+        }
+
+        // Atualizar dados do jogo com base nos grupos selecionados
+        function updateGameData() {
+            // Coletar todas as letras dos grupos selecionados
+            appState.allLetters = [];
+            for (const groupName of appState.selectedGroups) {
+                if (tibetanLetters[groupName]) {
+                    appState.allLetters.push(...tibetanLetters[groupName]);
+                }
+            }
+            
+            // Se o jogo estiver ativo, gerar uma nova pergunta
+            if (appState.gameActive && appState.allLetters.length > 0) {
+                generateNewQuestion();
+            }
+        }
+
+        // Gerar uma nova pergunta
+        function generateNewQuestion() {
+            if (appState.allLetters.length === 0) {
+                currentSyllableElement.textContent = "Selecione grupos na configuração";
+                optionsContainer.innerHTML = '<p class="option-btn">Selecione grupos de letras na configuração</p>';
+                return;
+            }
+            
+            // Selecionar uma sílaba aleatória
+            const randomIndex = Math.floor(Math.random() * appState.allLetters.length);
+            appState.currentSyllable = appState.allLetters[randomIndex];
+            currentSyllableElement.textContent = appState.currentSyllable.syllable;
+            appState.correctAnswer = appState.currentSyllable.sound;
+            
+            // Gerar opções de resposta
+            appState.currentOptions = [appState.correctAnswer];
+            
+            // Adicionar opções incorretas
+            while (appState.currentOptions.length < 4) {
+                const randomLetter = appState.allLetters[Math.floor(Math.random() * appState.allLetters.length)];
+                if (!appState.currentOptions.includes(randomLetter.sound)) {
+                    appState.currentOptions.push(randomLetter.sound);
+                }
+            }
+            
+            // Embaralhar opções
+            appState.currentOptions = shuffleArray(appState.currentOptions);
+            
+            // Renderizar opções
+            renderOptions();
+        }
+
+        // Renderizar opções de resposta
+        function renderOptions() {
+            optionsContainer.innerHTML = '';
+            
+            appState.currentOptions.forEach(sound => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = sound;
+                optionBtn.dataset.sound = sound;
+                optionBtn.setAttribute('aria-label', `Opção: ${sound}`);
+                
+                optionBtn.addEventListener('click', function() {
+                    handleAnswerSelection(this, sound);
+                });
+                
+                // Suporte para toque
+                optionBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    handleAnswerSelection(this, sound);
+                });
+                
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+
+        // Manipular seleção de resposta
+        function handleAnswerSelection(button, sound) {
+            if (!button.classList.contains('correct') && !button.classList.contains('incorrect')) {
+                const isCorrect = sound === appState.correctAnswer;
+                
+                // Adicionar feedback tátil (vibração) se disponível
+                if (navigator.vibrate) {
+                    navigator.vibrate(isCorrect ? [50] : [100, 50, 100]);
+                }
+                
+                if (isCorrect) {
+                    button.classList.add('correct');
+                    button.setAttribute('aria-label', `Correto: ${sound}`);
+                    appState.score += 10;
+                    appState.correctCount++;
+                    scoreElement.textContent = appState.score;
+                    correctCountElement.textContent = appState.correctCount;
+                    
+                    // Feedback sonoro (se desejado)
+                    // new Audio('correct-sound.mp3').play();
+                } else {
+                    button.classList.add('incorrect');
+                    button.setAttribute('aria-label', `Incorreto: ${sound}`);
+                    appState.incorrectCount++;
+                    incorrectCountElement.textContent = appState.incorrectCount;
+                    
+                    // Mostrar a resposta correta
+                    document.querySelectorAll('.option-btn').forEach(btn => {
+                        if (btn.dataset.sound === appState.correctAnswer) {
+                            btn.classList.add('correct');
+                            btn.setAttribute('aria-label', `Correto: ${appState.correctAnswer}`);
+                        }
+                    });
+                }
+            }
+        }
+
+        // Embaralhar array
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Alternar entre modos Configuração e Jogo
+        configModeBtn.addEventListener('click', function() {
+            switchToMode('config');
+        });
+
+        gameModeBtn.addEventListener('click', function() {
+            if (appState.selectedGroups.size === 0) {
+                alert('Por favor, selecione pelo menos um grupo de letras na configuração.');
+                switchToMode('config');
+                return;
+            }
+            
+            switchToMode('game');
+            
+            // Iniciar o jogo se não estiver ativo
+            if (!appState.gameActive) {
+                appState.gameActive = true;
+                updateGameData();
+            }
+        });
+
+        // Função para alternar entre modos
+        function switchToMode(mode) {
+            if (mode === 'config') {
+                configModeBtn.classList.add('active');
+                gameModeBtn.classList.remove('active');
+                configSection.classList.remove('hidden');
+                gameSection.classList.add('hidden');
+                instructions.classList.remove('hidden');
+                appState.gameActive = false;
+                
+                // Focar no primeiro elemento interativo para acessibilidade
+                setTimeout(() => {
+                    const firstCheckbox = document.querySelector('.letter-group input[type="checkbox"]');
+                    if (firstCheckbox) firstCheckbox.focus();
+                }, 100);
+            } else {
+                gameModeBtn.classList.add('active');
+                configModeBtn.classList.remove('active');
+                gameSection.classList.remove('hidden');
+                configSection.classList.add('hidden');
+                instructions.classList.add('hidden');
+                
+                // Focar na primeira opção de resposta
+                setTimeout(() => {
+                    const firstOption = document.querySelector('.option-btn');
+                    if (firstOption) firstOption.focus();
+                }, 100);
+            }
+        }
+
+        // Botões de seleção/deseleção de grupos
+        selectAllBtn.addEventListener('click', function() {
+            document.querySelectorAll('.letter-group input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = true;
+                const groupName = checkbox.id.replace('group-', '');
+                appState.selectedGroups.add(groupName);
+            });
+            updateGameData();
+        });
+
+        deselectAllBtn.addEventListener('click', function() {
+            document.querySelectorAll('.letter-group input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+                const groupName = checkbox.id.replace('group-', '');
+                appState.selectedGroups.delete(groupName);
+            });
+            updateGameData();
+        });
+
+        // Botões do jogo
+        nextQuestionBtn.addEventListener('click', function() {
+            generateNewQuestion();
+        });
+
+        nextQuestionBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            generateNewQuestion();
+        });
+
+        resetGameBtn.addEventListener('click', function() {
+            if (confirm('Reiniciar o jogo? Sua pontuação será zerada.')) {
+                resetGame();
+            }
+        });
+
+        resetGameBtn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            if (confirm('Reiniciar o jogo? Sua pontuação será zerada.')) {
+                resetGame();
+            }
+        });
+
+        // Função para reiniciar o jogo
+        function resetGame() {
+            appState.score = 0;
+            appState.correctCount = 0;
+            appState.incorrectCount = 0;
+            scoreElement.textContent = appState.score;
+            correctCountElement.textContent = appState.correctCount;
+            incorrectCountElement.textContent = appState.incorrectCount;
+            generateNewQuestion();
+        }
+
+        // Prevenir rolagem padrão em toques
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Suporte para teclado (acessibilidade)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+                e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                // Navegação por teclado pode ser implementada aqui
+            }
+        });
+
+        // Detectar orientação da tela
+        function handleOrientationChange() {
+            if (window.innerHeight > window.innerWidth) {
+                // Modo retrato
+                document.body.classList.remove('landscape');
+            } else {
+                // Modo paisagem
+                document.body.classList.add('landscape');
+            }
+        }
+
+        // Inicializar aplicativo
+        function initApp() {
+            initializeLetterGroups();
+            updateGameData();
+            handleOrientationChange();
+            
+            // Adicionar listener para mudança de orientação
+            window.addEventListener('resize', handleOrientationChange);
+            window.addEventListener('orientationchange', handleOrientationChange);
+            
+            // Mostrar instruções iniciais
+            switchToMode('config');
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        // Suporte para instalação como PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Registrar service worker para funcionamento offline
+                // navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
+</body>
+</html>
