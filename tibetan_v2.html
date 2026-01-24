@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aprendizado de Escrita Tibetana</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #ff6b6b;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #51cf66;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            width: 100%;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            position: relative;
+            padding-top: max(15px, env(safe-area-inset-top));
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        .app-mode {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            flex: 1;
+            max-width: 150px;
+        }
+        
+        .mode-btn:hover, .mode-btn:active {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .mode-btn.active {
+            background-color: white;
+            color: var(--primary-color);
+        }
+        
+        main {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 100%;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            overflow-y: auto;
+            max-height: 60vh;
+            flex-shrink: 0;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            overflow-y: auto;
+            padding-bottom: max(20px, calc(20px + var(--safe-area-inset-bottom)));
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+            font-size: 1.3rem;
+        }
+        
+        h3 {
+            color: var(--dark-color);
+            margin: 12px 0 8px;
+            font-size: 1.1rem;
+        }
+        
+        /* Configuração de vogais */
+        .vowels-config {
+            background-color: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .vowels-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .vowel-option {
+            padding: 6px 12px;
+            background-color: #e9ecef;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .vowel-option.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Tabela de sílabas */
+        .syllables-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .syllables-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .syllables-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .syllables-table tr:hover td {
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+        
+        .syllables-table td.selected {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+        
+        .letter-group {
+            background-color: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .group-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 5px 8px;
+            white-space: nowrap;
+        }
+        
+        .letters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        
+        .letter {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--dark-color);
+            cursor: default;
+            transition: all 0.2s;
+        }
+        
+        .letter.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .syllable-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        
+        .tibetan-syllable {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--dark-color);
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .audio-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            touch-action: manipulation;
+        }
+        
+        .audio-btn:hover, .audio-btn:active {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+        
+        .audio-btn.playing {
+            background-color: var(--accent-color);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 15px;
+        }
+        
+        .option-btn {
+            padding: 16px;
+            background-color: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 600;
+            width: 100%;
+            touch-action: manipulation;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option-btn:hover, .option-btn:active {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .option-btn.correct {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+        
+        .option-btn.incorrect {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .stat {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+            max-width: 500px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 140px;
+            touch-action: manipulation;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover, .btn-primary:active {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--dark-color);
+        }
+        
+        .btn-secondary:hover, .btn-secondary:active {
+            background-color: #dee2e6;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        .instructions h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        /* Melhorias para telas maiores */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1200px;
+                margin: 10px auto;
+                border-radius: 12px;
+                box-shadow: var(--shadow);
+                min-height: calc(100vh - 20px);
+            }
+            
+            header {
+                padding: 20px;
+                padding-top: max(20px, env(safe-area-inset-top));
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .app-mode {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                margin-top: 0;
+                width: auto;
+                flex-wrap: nowrap;
+            }
+            
+            .mode-btn {
+                max-width: none;
+                flex: none;
+            }
+            
+            main {
+                flex-direction: row;
+            }
+            
+            .sidebar {
+                width: 350px;
+                max-height: none;
+                border-right: 1px solid #e9ecef;
+                border-bottom: none;
+            }
+            
+            .content {
+                padding: 30px;
+            }
+            
+            .options-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .btn {
+                min-width: auto;
+                flex: none;
+            }
+            
+            .tibetan-syllable {
+                font-size: 5rem;
+                min-height: 120px;
+            }
+            
+            .syllable-container {
+                gap: 20px;
+            }
+            
+            .syllables-table {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .options-container {
+                gap: 15px;
+            }
+            
+            .option-btn {
+                padding: 18px;
+            }
+        }
+        
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 360px) {
+            .letter {
+                width: 32px;
+                height: 32px;
+                font-size: 1.2rem;
+            }
+            
+            .tibetan-syllable {
+                font-size: 3.5rem;
+                min-height: 90px;
+            }
+            
+            .audio-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                min-width: 120px;
+                font-size: 0.9rem;
+            }
+            
+            .syllables-table {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Prevenir zoom em inputs no iOS */
+        @media screen and (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px;
+            }
+        }
+        
+        /* Melhorias para orientação paisagem */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .sidebar {
+                max-height: 80vh;
+            }
+            
+            .tibetan-syllable {
+                font-size: 3rem;
+                min-height: 70px;
+                margin: 10px 0;
+            }
+            
+            .options-container {
+                margin-top: 10px;
+            }
+            
+            .audio-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        .config-section {
+            margin-bottom: 15px;
+        }
+        
+        .selection-summary {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .selection-summary strong {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-mountain"></i> Escrita Tibetana</h1>
+            <p class="subtitle">Pratique sílabas tibetanas e seus sons</p>
+            
+            <div class="app-mode">
+                <button id="configModeBtn" class="mode-btn active">
+                    <i class="fas fa-cog"></i> Configuração
+                </button>
+                <button id="gameModeBtn" class="mode-btn">
+                    <i class="fas fa-gamepad"></i> Jogo
+                </button>
+            </div>
+        </header>
+        
+        <main>
+            <section id="configSection" class="sidebar">
+                <h2><i class="fas fa-sliders-h"></i> Configuração</h2>
+                
+                <div class="config-section">
+                    <h3>Vogais para combinação</h3>
+                    <p>Selecione as vogais que serão combinadas com as consoantes:</p>
+                    <div id="vowelsConfig" class="vowels-config">
+                        <div class="vowels-container" id="vowelsContainer">
+                            <!-- Vogais serão geradas por JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <h3>Sílabas para prática</h3>
+                    <p>Selecione as sílabas que serão usadas no jogo:</p>
+                    <div class="table-container">
+                        <table class="syllables-table" id="syllablesTable">
+                            <!-- Tabela será gerada por JavaScript -->
+                        </table>
+                    </div>
+                    <div class="selection-summary">
+                        <span id="selectedCount">0</span> de <span id="totalCount">0</span> sílabas selecionadas
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="selectAllBtn" class="btn btn-secondary">
+                        <i class="fas fa-check-square"></i> Selecionar Tudo
+                    </button>
+                    <button id="deselectAllBtn" class="btn btn-secondary">
+                        <i class="far fa-square"></i> Desmarcar Tudo
+                    </button>
+                </div>
+            </section>
+            
+            <section id="gameSection" class="content hidden">
+                <h2>Qual é o som desta sílaba?</h2>
+                
+                <div class="syllable-container">
+                    <div class="tibetan-syllable" id="currentSyllable">
+                        ཀ
+                    </div>
+                    <button id="audioBtn" class="audio-btn" aria-label="Ouvir som da sílaba">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                </div>
+                
+                <div class="options-container" id="optionsContainer">
+                    <!-- Opções de resposta serão geradas por JavaScript -->
+                </div>
+                
+                <div class="game-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="score">0</div>
+                        <div class="stat-label">Pontuação</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="correctCount">0</div>
+                        <div class="stat-label">Acertos</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="incorrectCount">0</div>
+                        <div class="stat-label">Erros</div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="nextQuestionBtn" class="btn btn-primary">
+                        <i class="fas fa-forward"></i> Próxima
+                    </button>
+                    <button id="resetGameBtn" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Reiniciar
+                    </button>
+                </div>
+            </section>
+            
+            <section id="instructions" class="content">
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> Como usar</h3>
+                    <ol>
+                        <li>Na <strong>Configuração</strong>, selecione as vogais para combinar.</li>
+                        <li>Selecione as sílabas da tabela que deseja praticar.</li>
+                        <li>Toque em <strong>"Jogo"</strong> para começar a praticar.</li>
+                        <li>Uma sílaba tibetana será exibida. Toque no botão de som para ouvi-la.</li>
+                        <li>Toque no som correto entre as opções.</li>
+                        <li>O jogo evita repetir a mesma sílaba consecutivamente.</li>
+                    </ol>
+                    <p><strong>Dica:</strong> Comece com poucas sílabas e vá adicionando mais.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Dados das letras tibetanas - TABELA PADRÃO
+        const tibetanData = {
+            // Vogais básicas
+            vowels: [
+                { symbol: "ཨ", sound: "a", name: "A" },
+                { symbol: "ཨི", sound: "i", name: "I" },
+                { symbol: "ཨུ", sound: "u", name: "U" },
+                { symbol: "ཨེ", sound: "e", name: "E" },
+                { symbol: "ཨོ", sound: "o", name: "O" }
+            ],
+            
+            // Consoantes básicas (tabela padrão)
+            consonants: [
+                { symbol: "ཀ", sound: "ka", name: "KA", row: 1 },
+                { symbol: "ཁ", sound: "kha", name: "KHA", row: 1 },
+                { symbol: "ག", sound: "ga", name: "GA", row: 1 },
+                { symbol: "ང", sound: "nga", name: "NGA", row: 1 },
+                { symbol: "ཅ", sound: "ca", name: "CA", row: 2 },
+                { symbol: "ཆ", sound: "cha", name: "CHA", row: 2 },
+                { symbol: "ཇ", sound: "ja", name: "JA", row: 2 },
+                { symbol: "ཉ", sound: "nya", name: "NYA", row: 2 },
+                { symbol: "ཏ", sound: "ta", name: "TA", row: 3 },
+                { symbol: "ཐ", sound: "tha", name: "THA", row: 3 },
+                { symbol: "ད", sound: "da", name: "DA", row: 3 },
+                { symbol: "ན", sound: "na", name: "NA", row: 3 },
+                { symbol: "པ", sound: "pa", name: "PA", row: 4 },
+                { symbol: "ཕ", sound: "pha", name: "PHA", row: 4 },
+                { symbol: "བ", sound: "ba", name: "BA", row: 4 },
+                { symbol: "མ", sound: "ma", name: "MA", row: 4 },
+                { symbol: "ཙ", sound: "tsa", name: "TSA", row: 5 },
+                { symbol: "ཚ", sound: "tsha", name: "TSHA", row: 5 },
+                { symbol: "ཛ", sound: "dza", name: "DZA", row: 5 },
+                { symbol: "ཝ", sound: "wa", name: "WA", row: 5 },
+                { symbol: "ཞ", sound: "zha", name: "ZHA", row: 6 },
+                { symbol: "ཟ", sound: "za", name: "ZA", row: 6 },
+                { symbol: "འ", sound: "'a", name: "'A", row: 6 },
+                { symbol: "ཡ", sound: "ya", name: "YA", row: 6 },
+                { symbol: "ར", sound: "ra", name: "RA", row: 7 },
+                { symbol: "ལ", sound: "la", name: "LA", row: 7 },
+                { symbol: "ཤ", sound: "sha", name: "SHA", row: 7 },
+                { symbol: "ས", sound: "sa", name: "SA", row: 7 },
+                { symbol: "ཧ", sound: "ha", name: "HA", row: 8 },
+                { symbol: "ཨ", sound: "a", name: "A", row: 8 }
+            ]
+        };
+
+        // Estado do aplicativo
+        const appState = {
+            // Configurações
+            selectedVowels: new Set(["ཨ"]), // Vogal 'a' selecionada por padrão
+            selectedSyllables: new Set(), // Sílabas selecionadas da tabela
+            allSyllables: [], // Todas as sílabas possíveis (consoante + vogal)
+            
+            // Estado do jogo
+            currentSyllable: null,
+            currentOptions: [],
+            correctAnswer: null,
+            previousSyllable: null, // Para evitar repetição
+            score: 0,
+            correctCount: 0,
+            incorrectCount: 0,
+            gameActive: false
+        };
+
+        // Elementos DOM
+        const configSection = document.getElementById('configSection');
+        const gameSection = document.getElementById('gameSection');
+        const instructions = document.getElementById('instructions');
+        const configModeBtn = document.getElementById('configModeBtn');
+        const gameModeBtn = document.getElementById('gameModeBtn');
+        const vowelsContainer = document.getElementById('vowelsContainer');
+        const syllablesTable = document.getElementById('syllablesTable');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deselectAllBtn = document.getElementById('deselectAllBtn');
+        const currentSyllableElement = document.getElementById('currentSyllable');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        const resetGameBtn = document.getElementById('resetGameBtn');
+        const scoreElement = document.getElementById('score');
+        const correctCountElement = document.getElementById('correctCount');
+        const incorrectCountElement = document.getElementById('incorrectCount');
+        const audioBtn = document.getElementById('audioBtn');
+        const selectedCountElement = document.getElementById('selectedCount');
+        const totalCountElement = document.getElementById('totalCount');
+
+        // Variáveis de áudio
+        let audioPlayer = null;
+        let isPlaying = false;
+
+        // Inicializar configuração de vogais
+        function initializeVowelsConfig() {
+            vowelsContainer.innerHTML = '';
+            
+            tibetanData.vowels.forEach(vowel => {
+                const vowelOption = document.createElement('div');
+                vowelOption.className = `vowel-option ${appState.selectedVowels.has(vowel.symbol) ? 'selected' : ''}`;
+                vowelOption.textContent = `${vowel.symbol} (${vowel.name})`;
+                vowelOption.dataset.vowel = vowel.symbol;
+                vowelOption.dataset.sound = vowel.sound;
+                
+                vowelOption.addEventListener('click', function() {
+                    const vowelSymbol = this.dataset.vowel;
+                    if (appState.selectedVowels.has(vowelSymbol)) {
+                        appState.selectedVowels.delete(vowelSymbol);
+                        this.classList.remove('selected');
+                    } else {
+                        appState.selectedVowels.add(vowelSymbol);
+                        this.classList.add('selected');
+                    }
+                    generateAllSyllables();
+                    updateSelectionSummary();
+                });
+                
+                vowelsContainer.appendChild(vowelOption);
+            });
+        }
+
+        // Inicializar tabela de sílabas
+        function initializeSyllablesTable() {
+            // Limpar tabela
+            syllablesTable.innerHTML = '';
+            
+            // Cabeçalho da tabela
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            
+            const headerCell1 = document.createElement('th');
+            headerCell1.textContent = 'Linha';
+            headerRow.appendChild(headerCell1);
+            
+            const headerCell2 = document.createElement('th');
+            headerCell2.textContent = 'Consoante';
+            headerRow.appendChild(headerCell2);
+            
+            const headerCell3 = document.createElement('th');
+            headerCell3.textContent = 'Som';
+            headerRow.appendChild(headerCell3);
+            
+            const headerCell4 = document.createElement('th');
+            headerCell4.textContent = 'Selecionar';
+            headerRow.appendChild(headerCell4);
+            
+            thead.appendChild(headerRow);
+            syllablesTable.appendChild(thead);
+            
+            // Corpo da tabela
+            const tbody = document.createElement('tbody');
+            
+            // Agrupar consoantes por linha
+            const rows = {};
+            tibetanData.consonants.forEach(consonant => {
+                if (!rows[consonant.row]) {
+                    rows[consonant.row] = [];
+                }
+                rows[consonant.row].push(consonant);
+            });
+            
+            // Ordenar linhas
+            const rowNumbers = Object.keys(rows).sort((a, b) => a - b);
+            
+            // Criar linhas da tabela
+            rowNumbers.forEach(rowNum => {
+                const rowConsonants = rows[rowNum];
+                
+                rowConsonants.forEach((consonant, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // Célula da linha (apenas na primeira consoante da linha)
+                    const cell1 = document.createElement('td');
+                    if (index === 0) {
+                        cell1.textContent = rowNum;
+                        cell1.rowSpan = rowConsonants.length;
+                    }
+                    row.appendChild(cell1);
+                    
+                    // Célula da consoante
+                    const cell2 = document.createElement('td');
+                    cell2.textContent = consonant.symbol;
+                    cell2.style.fontSize = '1.5rem';
+                    cell2.style.fontWeight = 'bold';
+                    row.appendChild(cell2);
+                    
+                    // Célula do som
+                    const cell3 = document.createElement('td');
+                    cell3.textContent = consonant.sound;
+                    row.appendChild(cell3);
+                    
+                    // Célula de seleção
+                    const cell4 = document.createElement('td');
+                    const selectBtn = document.createElement('button');
+                    selectBtn.className = 'btn btn-secondary';
+                    selectBtn.style.padding = '4px 8px';
+                    selectBtn.style.fontSize = '0.8rem';
+                    selectBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    selectBtn.dataset.consonant = consonant.symbol;
+                    
+                    // Verificar se está selecionado
+                    const isSelected = Array.from(appState.selectedSyllables).some(
+                        syllable => syllable.consonant === consonant.symbol
+                    );
+                    
+                    if (isSelected) {
+                        selectBtn.classList.add('selected');
+                        selectBtn.innerHTML = '<i class="fas fa-check"></i> Selecionado';
+                        selectBtn.style.backgroundColor = 'var(--primary-color)';
+                        selectBtn.style.color = 'white';
+                    }
+                    
+                    selectBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleConsonantSelection(consonant.symbol);
+                    });
+                    
+                    cell4.appendChild(selectBtn);
+                    row.appendChild(cell4);
+                    
+                    // Selecionar linha inteira ao clicar nela
+                    row.addEventListener('click', function(e) {
+                        if (e.target.tagName !== 'BUTTON') {
+                            toggleConsonantSelection(consonant.symbol);
+                        }
+                    });
+                    
+                    tbody.appendChild(row);
+                });
+            });
+            
+            syllablesTable.appendChild(tbody);
+        }
+
+        // Alternar seleção de consoante
+        function toggleConsonantSelection(consonantSymbol) {
+            // Encontrar todas as sílabas com esta consoante
+            const syllablesWithConsonant = appState.allSyllables.filter(
+                syllable => syllable.consonant === consonantSymbol
+            );
+            
+            // Verificar se alguma sílaba com esta consoante está selecionada
+            const isAnySelected = syllablesWithConsonant.some(
+                syllable => appState.selectedSyllables.has(syllable)
+            );
+            
+            if (isAnySelected) {
+                // Desmarcar todas as sílabas com esta consoante
+                syllablesWithConsonant.forEach(syllable => {
+                    appState.selectedSyllables.delete(syllable);
+                });
+            } else {
+                // Marcar todas as sílabas com esta consoante
+                syllablesWithConsonant.forEach(syllable => {
+                    appState.selectedSyllables.add(syllable);
+                });
+            }
+            
+            // Atualizar interface
+            generateAllSyllables();
+            updateSelectionSummary();
+            initializeSyllablesTable(); // Re-renderizar tabela
+        }
+
+        // Gerar todas as sílabas possíveis (consoante + vogal selecionada)
+        function generateAllSyllables() {
+            appState.allSyllables = [];
+            
+            // Para cada consoante
+            tibetanData.consonants.forEach(consonant => {
+                // Para cada vogal selecionada
+                appState.selectedVowels.forEach(vowelSymbol => {
+                    // Encontrar dados da vogal
+                    const vowel = tibetanData.vowels.find(v => v.symbol === vowelSymbol);
+                    if (!vowel) return;
+                    
+                    // Criar sílaba combinada
+                    // Nota: Na escrita tibetana, a vogal é adicionada à consoante
+                    let combinedSyllable;
+                    if (vowelSymbol === "ཨ") {
+                        // Vogal 'a' é a forma básica da consoante
+                        combinedSyllable = consonant.symbol;
+                    } else {
+                        // Para outras vogais, combinamos os símbolos
+                        // (Esta é uma simplificação - na realidade a combinação é mais complexa)
+                        combinedSyllable = consonant.symbol; // Na prática, aqui seria a combinação real
+                    }
+                    
+                    // Som combinado (consoante + vogal)
+                    const combinedSound = consonant.sound.replace(/a$/, vowel.sound);
+                    
+                    // Criar objeto da sílaba
+                    const syllable = {
+                        fullSymbol: combinedSyllable,
+                        consonant: consonant.symbol,
+                        vowel: vowelSymbol,
+                        sound: combinedSound,
+                        display: consonant.symbol, // Para exibição, usamos apenas a consoante por enquanto
+                        name: `${consonant.name} + ${vowel.name}`
+                    };
+                    
+                    appState.allSyllables.push(syllable);
+                    
+                    // Se esta consoante já estava selecionada antes, manter selecionada
+                    const wasSelected = Array.from(appState.selectedSyllables).some(
+                        s => s.consonant === consonant.symbol && s.vowel === vowelSymbol
+                    );
+                    
+                    if (wasSelected) {
+                        appState.selectedSyllables.add(syllable);
+                    }
+                });
+            });
+            
+            updateSelectionSummary();
+        }
+
+        // Atualizar resumo da seleção
+        function updateSelectionSummary() {
+            const selectedCount = appState.selectedSyllables.size;
+            const totalCount = appState.allSyllables.length;
+            
+            selectedCountElement.textContent = selectedCount;
+            totalCountElement.textContent = totalCount;
+            
+            // Atualizar contador no cabeçalho da tabela se existir
+            const headerCells = syllablesTable.querySelectorAll('th');
+            if (headerCells.length >= 4) {
+                headerCells[3].textContent = `Selecionar (${selectedCount}/${totalCount})`;
+            }
+        }
+
+        // Selecionar todas as sílabas
+        function selectAllSyllables() {
+            appState.selectedSyllables = new Set(appState.allSyllables);
+            updateSelectionSummary();
+            initializeSyllablesTable();
+        }
+
+        // Desmarcar todas as sílabas
+        function deselectAllSyllables() {
+            appState.selectedSyllables.clear();
+            updateSelectionSummary();
+            initializeSyllablesTable();
+        }
+
+        // Gerar uma nova pergunta evitando repetição
+        function generateNewQuestion() {
+            if (appState.selectedSyllables.size === 0) {
+                currentSyllableElement.textContent = "Selecione sílabas na configuração";
+                optionsContainer.innerHTML = '<p class="option-btn">Selecione sílabas na tabela de configuração</p>';
+                return;
+            }
+            
+            // Converter Set para Array
+            const availableSyllables = Array.from(appState.selectedSyllables);
+            
+            if (availableSyllables.length === 0) {
+                currentSyllableElement.textContent = "Nenhuma sílaba selecionada";
+                optionsContainer.innerHTML = '<p class="option-btn">Selecione pelo menos uma sílaba</p>';
+                return;
+            }
+            
+            // Filtrar para evitar a sílaba anterior
+            let filteredSyllables = availableSyllables;
+            if (appState.previousSyllable && availableSyllables.length > 1) {
+                filteredSyllables = availableSyllables.filter(
+                    syllable => !syllablesAreEqual(syllable, appState.previousSyllable)
+                );
+                
+                // Se filtrou tudo, usar todas as sílabas
+                if (filteredSyllables.length === 0) {
+                    filteredSyllables = availableSyllables;
+                }
+            }
+            
+            // Selecionar uma sílaba aleatória
+            const randomIndex = Math.floor(Math.random() * filteredSyllables.length);
+            appState.currentSyllable = filteredSyllables[randomIndex];
+            
+            // Atualizar interface
+            currentSyllableElement.textContent = appState.currentSyllable.display;
+            appState.correctAnswer = appState.currentSyllable.sound;
+            
+            // Parar áudio atual se estiver tocando
+            stopAudio();
+            
+            // Gerar opções de resposta
+            generateAnswerOptions();
+            
+            // Atualizar sílaba anterior
+            appState.previousSyllable = appState.currentSyllable;
+        }
+
+        // Verificar se duas sílabas são iguais
+        function syllablesAreEqual(s1, s2) {
+            return s1 && s2 && s1.consonant === s2.consonant && s1.vowel === s2.vowel;
+        }
+
+        // Gerar opções de resposta
+        function generateAnswerOptions() {
+            if (!appState.currentSyllable) return;
+            
+            // Converter Set para Array
+            const availableSyllables = Array.from(appState.selectedSyllables);
+            
+            // Opções de resposta
+            appState.currentOptions = [appState.correctAnswer];
+            
+            // Adicionar opções incorretas (sons diferentes)
+            while (appState.currentOptions.length < 4 && appState.currentOptions.length < availableSyllables.length) {
+                const randomSyllable = availableSyllables[Math.floor(Math.random() * availableSyllables.length)];
+                const randomSound = randomSyllable.sound;
+                
+                if (!appState.currentOptions.includes(randomSound)) {
+                    appState.currentOptions.push(randomSound);
+                }
+            }
+            
+            // Se não houver opções suficientes, duplicar algumas
+            while (appState.currentOptions.length < 4) {
+                const randomSound = availableSyllables[Math.floor(Math.random() * availableSyllables.length)].sound;
+                if (!appState.currentOptions.includes(randomSound)) {
+                    appState.currentOptions.push(randomSound);
+                }
+            }
+            
+            // Embaralhar opções
+            appState.currentOptions = shuffleArray(appState.currentOptions);
+            
+            // Renderizar opções
+            renderOptions();
+        }
+
+        // Renderizar opções de resposta
+        function renderOptions() {
+            optionsContainer.innerHTML = '';
+            
+            appState.currentOptions.forEach(sound => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn';
+                optionBtn.textContent = sound;
+                optionBtn.dataset.sound = sound;
+                optionBtn.setAttribute('aria-label', `Opção: ${sound}`);
+                
+                optionBtn.addEventListener('click', function() {
+                    handleAnswerSelection(this, sound);
+                });
+                
+                // Suporte para toque
+                optionBtn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    handleAnswerSelection(this, sound);
+                });
+                
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+
+        // Manipular seleção de resposta
+        function handleAnswerSelection(button, sound) {
+            if (!button.classList.contains('correct') && !button.classList.contains('incorrect')) {
+                const isCorrect = sound === appState.correctAnswer;
+                
+                // Adicionar feedback tátil (vibração) se disponível
+                if (navigator.vibrate) {
+                    navigator.vibrate(isCorrect ? [50] : [100, 50, 100]);
+                }
+                
+                if (isCorrect) {
+                    button.classList.add('correct');
+                    button.setAttribute('aria-label', `Correto: ${sound}`);
+                    appState.score += 10;
+                    appState.correctCount++;
+                    scoreElement.textContent = appState.score;
+                    correctCountElement.textContent = appState.correctCount;
+                } else {
+                    button.classList.add('incorrect');
+                    button.setAttribute('aria-label', `Incorreto: ${sound}`);
+                    appState.incorrectCount++;
+                    incorrectCountElement.textContent = appState.incorrectCount;
+                    
+                    // Mostrar a resposta correta
+                    document.querySelectorAll('.option-btn').forEach(btn => {
+                        if (btn.dataset.sound === appState.correctAnswer) {
+                            btn.classList.add('correct');
+                            btn.setAttribute('aria-label', `Correto: ${appState.correctAnswer}`);
+                        }
+                    });
+                }
+            }
+        }
+
+        // Função para tocar segmento de áudio
+        function playAudioSegment() {
+            if (!appState.currentSyllable) {
+                console.log("Sem sílaba atual");
+                return;
+            }
+            
+            // Parar áudio atual se estiver tocando
+            stopAudio();
+            
+            // Criar novo player de áudio
+            audioPlayer = new Audio();
+            
+            // Usar um som de exemplo (substitua pelo seu arquivo)
+            // Para demonstração, usaremos um som baseado na sílaba
+            audioPlayer.src = `https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3`;
+            
+            // Tentar tocar
+            const playPromise = audioPlayer.play();
+            
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        isPlaying = true;
+                        audioBtn.classList.add('playing');
+                        audioBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                        audioBtn.setAttribute('aria-label', 'Parar áudio');
+                        
+                        // Parar após 1 segundo
+                        setTimeout(() => {
+                            stopAudio();
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        console.error("Erro ao tocar áudio:", error);
+                        resetAudioButton();
+                    });
+            }
+        }
+
+        // Parar áudio
+        function stopAudio() {
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+            resetAudioButton();
+        }
+
+        // Resetar botão de áudio
+        function resetAudioButton() {
+            isPlaying = false;
+            audioBtn.classList.remove('playing');
+            audioBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+            audioBtn.setAttribute('aria-label', 'Ouvir som da sílaba');
+        }
+
+        // Embaralhar array
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Alternar entre modos Configuração e Jogo
+        function switchToMode(mode) {
+            if (mode === 'config') {
+                configModeBtn.classList.add('active');
+                gameModeBtn.classList.remove('active');
+                configSection.classList.remove('hidden');
+                gameSection.classList.add('hidden');
+                instructions.classList.remove('hidden');
+                appState.gameActive = false;
+                stopAudio();
+            } else {
+                // Verificar se há sílabas selecionadas
+                if (appState.selectedSyllables.size === 0) {
+                    alert('Por favor, selecione pelo menos uma sílaba na tabela de configuração.');
+                    switchToMode('config');
+                    return;
+                }
+                
+                gameModeBtn.classList.add('active');
+                configModeBtn.classList.remove('active');
+                gameSection.classList.remove('hidden');
+                configSection.classList.add('hidden');
+                instructions.classList.add('hidden');
+                stopAudio();
+                
+                // Iniciar o jogo se não estiver ativo
+                if (!appState.gameActive) {
+                    appState.gameActive = true;
+                    // Resetar sílaba anterior para evitar viés
+                    appState.previousSyllable = null;
+                    generateNewQuestion();
+                }
+            }
+        }
+
+        // Inicializar aplicativo
+        function initApp() {
+            initializeVowelsConfig();
+            generateAllSyllables();
+            initializeSyllablesTable();
+            
+            // Event listeners
+            configModeBtn.addEventListener('click', () => switchToMode('config'));
+            gameModeBtn.addEventListener('click', () => switchToMode('game'));
+            
+            selectAllBtn.addEventListener('click', selectAllSyllables);
+            deselectAllBtn.addEventListener('click', deselectAllSyllables);
+            
+            nextQuestionBtn.addEventListener('click', generateNewQuestion);
+            resetGameBtn.addEventListener('click', resetGame);
+            audioBtn.addEventListener('click', playAudioSegment);
+            
+            // Suporte para toque
+            nextQuestionBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                generateNewQuestion();
+            });
+            
+            resetGameBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                resetGame();
+            });
+            
+            audioBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                if (isPlaying) {
+                    stopAudio();
+                } else {
+                    playAudioSegment();
+                }
+            });
+            
+            // Mostrar instruções iniciais
+            switchToMode('config');
+        }
+
+        // Função para reiniciar o jogo
+        function resetGame() {
+            if (confirm('Reiniciar o jogo? Sua pontuação será zerada.')) {
+                appState.score = 0;
+                appState.correctCount = 0;
+                appState.incorrectCount = 0;
+                appState.previousSyllable = null;
+                scoreElement.textContent = appState.score;
+                correctCountElement.textContent = appState.correctCount;
+                incorrectCountElement.textContent = appState.incorrectCount;
+                stopAudio();
+                generateNewQuestion();
+            }
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
