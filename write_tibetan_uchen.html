@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprendizado Tibetano</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #ff6b6b;
+            --success-color: #51cf66;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .tibetan-syllable {
+            font-size: 6rem; /* Aumentado em 50% */
+            font-weight: bold;
+            min-height: 140px;
+            line-height: 1;
+        }
+        
+        @media (min-width: 768px) {
+            .tibetan-syllable {
+                font-size: 7.5rem; /* Aumentado em 50% */
+                min-height: 160px;
+            }
+        }
+        
+        .audio-btn {
+            width: 70px; /* Aumentado proporcionalmente */
+            height: 70px; /* Aumentado proporcionalmente */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .audio-btn.playing {
+            background-color: var(--accent-color) !important;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .vowel-option {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        
+        .vowel-option.selected {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+            border-color: var(--primary-color) !important;
+        }
+        
+        .consonant-row {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .consonant-row:hover {
+            background-color: rgba(74, 111, 165, 0.1) !important;
+        }
+        
+        .consonant-row.selected {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+        
+        .consonant-row.selected .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        .consonant-symbol {
+            font-size: 2rem; /* Aumentado proporcionalmente */
+            font-weight: bold;
+        }
+        
+        .consonant-info {
+            font-size: 0.9rem;
+        }
+        
+        /* Botões de resposta em duas colunas SEMPRE */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* SEMPRE 2 colunas */
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Para telas muito pequenas, reduzir gap */
+        @media (max-width: 400px) {
+            .options-grid {
+                gap: 10px;
+            }
+        }
+        
+        .option-btn {
+            transition: all 0.2s;
+            min-height: 80px; /* Aumentado proporcionalmente */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem; /* Aumentado proporcionalmente */
+            font-weight: 500;
+            width: 100%; /* Garante que ocupe toda a célula do grid */
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option-btn.correct {
+            background-color: var(--success-color) !important;
+            border-color: var(--success-color) !important;
+            color: white !important;
+        }
+        
+        .option-btn.incorrect {
+            background-color: var(--accent-color) !important;
+            border-color: var(--accent-color) !important;
+            color: white !important;
+        }
+        
+        .stat-value {
+            font-size: 2rem; /* Aumentado proporcionalmente */
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .selection-info {
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .consonant-symbol {
+                font-size: 1.7rem;
+            }
+            
+            .audio-btn {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .tibetan-syllable {
+                font-size: 5rem;
+                min-height: 120px;
+            }
+            
+            .option-btn {
+                min-height: 70px;
+                font-size: 1.1rem;
+            }
+            
+            /* Em telas muito estreitas, garantir que o grid 2x2 ainda funcione */
+            .options-grid {
+                grid-template-columns: 1fr 1fr; /* MANTÉM 2 colunas */
+                gap: 10px;
+            }
+        }
+        
+        /* Para telas extremamente pequenas, ajustar tamanho dos botões */
+        @media (max-width: 350px) {
+            .option-btn {
+                min-height: 60px;
+                font-size: 1rem;
+                padding: 0.5rem;
+            }
+        }
+        
+        .row-preview {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .select-all-btn {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: white;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0 min-vh-100 d-flex flex-column">
+        <!-- Header -->
+        <header class="bg-primary text-white py-3">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="h3 mb-1"><i class="bi bi-mountains"></i> Aprendizado Tibetano</h1>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="btn-group" role="group">
+                            <button id="configModeBtn" class="btn btn-light btn-sm active">
+                                <i class="bi bi-sliders"></i> Configuração
+                            </button>
+                            <button id="gameModeBtn" class="btn btn-outline-light btn-sm">
+                                <i class="bi bi-controller"></i> Jogo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow-1">
+            <!-- Configuração Section -->
+            <section id="configSection" class="container py-4">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="h4 mb-3 text-primary"><i class="bi bi-sliders"></i> Configuração do Jogo</h2>
+                        
+                        <!-- Vogais Selection -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="h6 mb-0">1. Selecione as Vogais</h3>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">Escolha quais vogais serão combinadas com as consoantes:</p>
+                                <div class="d-flex flex-wrap gap-2" id="vowelsContainer">
+                                    <!-- Vogais serão geradas por JavaScript -->
+                                </div>
+                                <div class="mt-3 selection-info">
+                                    <i class="bi bi-info-circle text-primary"></i>
+                                    <span class="text-muted">
+                                        Cada vogal selecionada será combinada com todas as consoantes escolhidas.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Consoantes Selection -->
+                        <div class="card">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h3 class="h6 mb-0">2. Selecione as Linhas de Consoantes</h3>
+                                <span class="badge bg-light text-primary">
+                                    <span id="selectedCount">0</span>/<span id="totalCount">8</span> linhas
+                                </span>
+                            </div>
+                            <div class="card-body p-0">
+                                <!-- Botão para selecionar todas -->
+                                <div class="select-all-btn px-3">
+                                    <button id="selectAllBtn" class="btn btn-outline-primary btn-sm me-2">
+                                        <i class="bi bi-check-all"></i> Selecionar Todas as Linhas
+                                    </button>
+                                    <button id="deselectAllBtn" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-x-circle"></i> Desmarcar Todas
+                                    </button>
+                                </div>
+                                
+                                <!-- Lista de linhas de consoantes -->
+                                <div class="list-group list-group-flush" id="consonantRows">
+                                    <!-- Linhas serão geradas por JavaScript -->
+                                </div>
+                                
+                                <div class="p-3">
+                                    <div class="selection-info">
+                                        <i class="bi bi-info-circle text-primary"></i>
+                                        <span class="text-muted">
+                                            Cada linha contém 4 consoantes. Ao selecionar uma linha, 
+                                            todas as suas 4 consoantes serão usadas com as vogais selecionadas.
+                                        </span>
+                                    </div>
+                                    <div class="mt-2 text-muted small">
+                                        <strong>Total de sílabas disponíveis:</strong> 
+                                        <span id="totalSyllables">0</span> 
+                                        (<span id="selectedRows">0</span> linhas × <span id="selectedVowelsCount">1</span> vogais × 4 consoantes por linha)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Game Section -->
+            <section id="gameSection" class="container py-4 d-none">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <h2 class="h4 mb-3 text-center text-primary">Qual é o som desta sílaba?</h2>
+                        
+                        <!-- Current Syllable -->
+                        <div class="card mb-4">
+                            <div class="card-body text-center">
+                                <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
+                                    <div class="tibetan-syllable bg-light rounded p-4" id="currentSyllable">
+                                        ཀ
+                                    </div>
+                                    <button id="audioBtn" class="audio-btn btn btn-primary" aria-label="Ouvir som da sílaba">
+                                        <i class="bi bi-volume-up"></i>
+                                    </button>
+                                </div>
+                                <p class="text-muted mb-0">
+                                    <i class="bi bi-info-circle"></i> Clique no botão de som para ouvir a pronúncia
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Options Grid - SEMPRE 2x2 -->
+                        <div class="options-grid mb-4" id="optionsContainer">
+                            <!-- Opções serão geradas por JavaScript -->
+                        </div>
+                        
+                        <!-- Stats -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-4 text-center">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <div class="stat-value" id="score">0</div>
+                                        <div class="stat-label">Pontuação</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <div class="stat-value" id="correctCount">0</div>
+                                        <div class="stat-label">Acertos</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="card">
+                                    <div class="card-body py-2">
+                                        <div class="stat-value" id="incorrectCount">0</div>
+                                        <div class="stat-label">Erros</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Game Controls -->
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button id="nextQuestionBtn" class="btn btn-primary">
+                                <i class="bi bi-arrow-right"></i> Próxima Pergunta
+                            </button>
+                            <button id="resetGameBtn" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reiniciar Jogo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Instructions Section -->
+            <section id="instructionsSection" class="container py-4">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="h6 mb-0"><i class="bi bi-info-circle"></i> Como usar este aplicativo</h3>
+                            </div>
+                            <div class="card-body">
+                                <ol class="mb-0">
+                                    <li class="mb-2">Na <strong>aba de Configuração</strong>, selecione primeiro as vogais que deseja praticar.</li>
+                                    <li class="mb-2">Em seguida, selecione as <strong>linhas de consoantes</strong> - cada linha contém 4 consoantes.</li>
+                                    <li class="mb-2">Automaticamente serão criadas <strong>todas as combinações</strong> entre as consoantes selecionadas e as vogais escolhidas.</li>
+                                    <li class="mb-2">Clique no botão <strong>"Jogo"</strong> para iniciar o modo de prática.</li>
+                                    <li class="mb-2">No modo Jogo, uma sílaba tibetana será exibida. Clique no botão de som para ouvi-la.</li>
+                                    <li>Escolha a opção que corresponde ao som correto. O jogo evita repetir a mesma sílaba consecutivamente.</li>
+                                </ol>
+                                <div class="alert alert-info mt-3 mb-0">
+                                    <i class="bi bi-lightbulb"></i> <strong>Dica:</strong> Comece com poucas vogais e 1-2 linhas de consoantes, depois vá adicionando mais.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-light py-3 mt-auto">
+            <div class="container text-center">
+                <p class="mb-0 text-muted small">
+                    Aplicativo de Aprendizado Tibetano
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Dados das letras tibetanas - LINHAS PADRÃO (4 consoantes por linha)
+        const tibetanData = {
+            // Vogais básicas com seus marcadores
+            vowels: [
+                { symbol: "ཨ", sound: "a", name: "A", marker: "" },
+                { symbol: "ི", sound: "i", name: "I", marker: "ི" },
+                { symbol: "ུ", sound: "u", name: "U", marker: "ུ" },
+                { symbol: "ེ", sound: "e", name: "E", marker: "ེ" },
+                { symbol: "ོ", sound: "o", name: "O", marker: "ོ" }
+            ],
+            
+            // Linhas de consoantes (4 consoantes por linha)
+            consonantRows: [
+                {
+                    id: 1,
+                    name: "Linha 1 - Grupo KA",
+                    consonants: [
+                        { symbol: "ཀ", sound: "ka", name: "KA", base: "ཀ" },
+                        { symbol: "ཁ", sound: "kha", name: "KHA", base: "ཁ" },
+                        { symbol: "ག", sound: "ga", name: "GA", base: "ག" },
+                        { symbol: "ང", sound: "nga", name: "NGA", base: "ང" }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: "Linha 2 - Grupo CA",
+                    consonants: [
+                        { symbol: "ཅ", sound: "ca", name: "CA", base: "ཅ" },
+                        { symbol: "ཆ", sound: "cha", name: "CHA", base: "ཆ" },
+                        { symbol: "ཇ", sound: "ja", name: "JA", base: "ཇ" },
+                        { symbol: "ཉ", sound: "nya", name: "NYA", base: "ཉ" }
+                    ]
+                },
+                {
+                    id: 3,
+                    name: "Linha 3 - Grupo TA",
+                    consonants: [
+                        { symbol: "ཏ", sound: "ta", name: "TA", base: "ཏ" },
+                        { symbol: "ཐ", sound: "tha", name: "THA", base: "ཐ" },
+                        { symbol: "ད", sound: "da", name: "DA", base: "ད" },
+                        { symbol: "ན", sound: "na", name: "NA", base: "ན" }
+                    ]
+                },
+                {
+                    id: 4,
+                    name: "Linha 4 - Grupo PA",
+                    consonants: [
+                        { symbol: "པ", sound: "pa", name: "PA", base: "པ" },
+                        { symbol: "ཕ", sound: "pha", name: "PHA", base: "ཕ" },
+                        { symbol: "བ", sound: "ba", name: "BA", base: "བ" },
+                        { symbol: "མ", sound: "ma", name: "MA", base: "མ" }
+                    ]
+                },
+                {
+                    id: 5,
+                    name: "Linha 5 - Grupo TSA",
+                    consonants: [
+                        { symbol: "ཙ", sound: "tsa", name: "TSA", base: "ཙ" },
+                        { symbol: "ཚ", sound: "tsha", name: "TSHA", base: "ཚ" },
+                        { symbol: "ཛ", sound: "dza", name: "DZA", base: "ཛ" },
+                        { symbol: "ཝ", sound: "wa", name: "WA", base: "ཝ" }
+                    ]
+                },
+                {
+                    id: 6,
+                    name: "Linha 6 - Grupo ZA",
+                    consonants: [
+                        { symbol: "ཞ", sound: "zha", name: "ZHA", base: "ཞ" },
+                        { symbol: "ཟ", sound: "za", name: "ZA", base: "ཟ" },
+                        { symbol: "འ", sound: "'a", name: "'A", base: "འ" },
+                        { symbol: "ཡ", sound: "ya", name: "YA", base: "ཡ" }
+                    ]
+                },
+                {
+                    id: 7,
+                    name: "Linha 7 - Grupo RA",
+                    consonants: [
+                        { symbol: "ར", sound: "ra", name: "RA", base: "ར" },
+                        { symbol: "ལ", sound: "la", name: "LA", base: "ལ" },
+                        { symbol: "ཤ", sound: "sha", name: "SHA", base: "ཤ" },
+                        { symbol: "ས", sound: "sa", name: "SA", base: "ས" }
+                    ]
+                },
+                {
+                    id: 8,
+                    name: "Linha 8 - Grupo HA",
+                    consonants: [
+                        { symbol: "ཧ", sound: "ha", name: "HA", base: "ཧ" },
+                        { symbol: "ཨ", sound: "a", name: "A", base: "ཨ" }
+                    ]
+                }
+            ]
+        };
+
+        // Estado do aplicativo
+        const appState = {
+            selectedVowels: new Set(["ཨ"]),
+            selectedRows: new Set([1]),
+            allSyllables: [],
+            currentSyllable: null,
+            currentOptions: [],
+            correctAnswer: null,
+            previousSyllable: null,
+            score: 0,
+            correctCount: 0,
+            incorrectCount: 0,
+            gameActive: false
+        };
+
+        // Elementos DOM
+        const configSection = document.getElementById('configSection');
+        const gameSection = document.getElementById('gameSection');
+        const instructionsSection = document.getElementById('instructionsSection');
+        const configModeBtn = document.getElementById('configModeBtn');
+        const gameModeBtn = document.getElementById('gameModeBtn');
+        const vowelsContainer = document.getElementById('vowelsContainer');
+        const consonantRows = document.getElementById('consonantRows');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deselectAllBtn = document.getElementById('deselectAllBtn');
+        const currentSyllableElement = document.getElementById('currentSyllable');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        const resetGameBtn = document.getElementById('resetGameBtn');
+        const scoreElement = document.getElementById('score');
+        const correctCountElement = document.getElementById('correctCount');
+        const incorrectCountElement = document.getElementById('incorrectCount');
+        const audioBtn = document.getElementById('audioBtn');
+        const selectedCountElement = document.getElementById('selectedCount');
+        const totalSyllablesElement = document.getElementById('totalSyllables');
+        const selectedRowsElement = document.getElementById('selectedRows');
+        const selectedVowelsCountElement = document.getElementById('selectedVowelsCount');
+
+        // Variáveis de áudio
+        let audioPlayer = null;
+        let isPlaying = false;
+
+        // Inicializar configuração de vogais
+        function initializeVowelsConfig() {
+            vowelsContainer.innerHTML = '';
+            
+            tibetanData.vowels.forEach(vowel => {
+                const vowelOption = document.createElement('button');
+                vowelOption.type = 'button';
+                vowelOption.className = `vowel-option btn ${appState.selectedVowels.has(vowel.symbol) ? 'btn-primary selected' : 'btn-outline-primary'}`;
+                
+                if (vowel.symbol === "ཨ") {
+                    vowelOption.innerHTML = `<strong>${vowel.symbol}</strong><br><small>${vowel.name} (base)</small>`;
+                } else {
+                    vowelOption.innerHTML = `<strong>${vowel.marker}</strong><br><small>${vowel.name}</small>`;
+                }
+                
+                vowelOption.dataset.vowel = vowel.symbol;
+                
+                vowelOption.addEventListener('click', function() {
+                    const vowelSymbol = this.dataset.vowel;
+                    if (appState.selectedVowels.has(vowelSymbol)) {
+                        appState.selectedVowels.delete(vowelSymbol);
+                        this.classList.remove('btn-primary', 'selected');
+                        this.classList.add('btn-outline-primary');
+                    } else {
+                        appState.selectedVowels.add(vowelSymbol);
+                        this.classList.remove('btn-outline-primary');
+                        this.classList.add('btn-primary', 'selected');
+                    }
+                    generateAllSyllables();
+                    updateSelectionSummary();
+                    updateRowPreviews();
+                });
+                
+                vowelsContainer.appendChild(vowelOption);
+            });
+        }
+
+        // Inicializar lista de linhas de consoantes
+        function initializeConsonantRows() {
+            consonantRows.innerHTML = '';
+            
+            tibetanData.consonantRows.forEach(row => {
+                const rowElement = document.createElement('div');
+                rowElement.className = `list-group-item list-group-item-action consonant-row ${appState.selectedRows.has(row.id) ? 'selected' : ''}`;
+                rowElement.dataset.rowId = row.id;
+                
+                let previewHTML = '';
+                const maxPreviews = 3;
+                let previewCount = 0;
+                
+                Array.from(appState.selectedVowels).forEach(vowelSymbol => {
+                    if (previewCount >= maxPreviews) return;
+                    
+                    const vowel = tibetanData.vowels.find(v => v.symbol === vowelSymbol);
+                    if (vowel && row.consonants[0]) {
+                        const combination = combineConsonantWithVowel(row.consonants[0], vowel);
+                        previewHTML += `<span class="me-2">${combination.display}</span>`;
+                        previewCount++;
+                    }
+                });
+                
+                if (Array.from(appState.selectedVowels).length > maxPreviews) {
+                    previewHTML += `<span class="text-muted">+${Array.from(appState.selectedVowels).length - maxPreviews} mais...</span>`;
+                }
+                
+                rowElement.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <span class="consonant-symbol me-3">
+                                    ${row.consonants.map(c => c.base).join(' ')}
+                                </span>
+                                <div>
+                                    <div class="fw-bold">${row.name}</div>
+                                    <div class="consonant-info text-muted">
+                                        ${row.consonants.map(c => `${c.base} (${c.sound})`).join(', ')}
+                                    </div>
+                                    ${previewHTML ? `<div class="row-preview mt-1">${previewHTML}</div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="badge ${appState.selectedRows.has(row.id) ? 'bg-light text-primary' : 'bg-secondary'}">
+                                ${appState.selectedRows.has(row.id) ? '<i class="bi bi-check-lg"></i> Selecionada' : 'Clique para selecionar'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                
+                rowElement.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+                    
+                    const rowId = parseInt(this.dataset.rowId);
+                    toggleRowSelection(rowId);
+                });
+                
+                consonantRows.appendChild(rowElement);
+            });
+            
+            updateSelectionSummary();
+        }
+
+        // Atualizar previews nas linhas
+        function updateRowPreviews() {
+            const rowElements = consonantRows.querySelectorAll('.consonant-row');
+            
+            rowElements.forEach(rowElement => {
+                const rowId = parseInt(rowElement.dataset.rowId);
+                const row = tibetanData.consonantRows.find(r => r.id === rowId);
+                
+                if (!row) return;
+                
+                let previewHTML = '';
+                const maxPreviews = 3;
+                let previewCount = 0;
+                
+                Array.from(appState.selectedVowels).forEach(vowelSymbol => {
+                    if (previewCount >= maxPreviews) return;
+                    
+                    const vowel = tibetanData.vowels.find(v => v.symbol === vowelSymbol);
+                    if (vowel && row.consonants[0]) {
+                        const combination = combineConsonantWithVowel(row.consonants[0], vowel);
+                        previewHTML += `<span class="me-2">${combination.display}</span>`;
+                        previewCount++;
+                    }
+                });
+                
+                if (Array.from(appState.selectedVowels).length > maxPreviews) {
+                    previewHTML += `<span class="text-muted">+${Array.from(appState.selectedVowels).length - maxPreviews} mais...</span>`;
+                }
+                
+                const previewElement = rowElement.querySelector('.row-preview');
+                if (previewElement) {
+                    previewElement.innerHTML = previewHTML || '';
+                } else if (previewHTML) {
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'row-preview mt-1';
+                    previewDiv.innerHTML = previewHTML;
+                    rowElement.querySelector('.consonant-info').after(previewDiv);
+                }
+            });
+        }
+
+        // Função para combinar consoante com vogal
+        function combineConsonantWithVowel(consonant, vowel) {
+            if (vowel.symbol === "ཨ") {
+                return {
+                    symbol: consonant.base,
+                    sound: consonant.sound,
+                    display: consonant.base
+                };
+            }
+            
+            const combinedSymbol = consonant.base + vowel.marker;
+            const baseSound = consonant.sound.replace(/a$/, '');
+            const combinedSound = baseSound + vowel.sound;
+            
+            return {
+                symbol: combinedSymbol,
+                sound: combinedSound,
+                display: combinedSymbol
+            };
+        }
+
+        // Alternar seleção de linha
+        function toggleRowSelection(rowId) {
+            if (appState.selectedRows.has(rowId)) {
+                appState.selectedRows.delete(rowId);
+            } else {
+                appState.selectedRows.add(rowId);
+            }
+            
+            generateAllSyllables();
+            updateSelectionSummary();
+            
+            const rowElement = document.querySelector(`.consonant-row[data-row-id="${rowId}"]`);
+            if (rowElement) {
+                if (appState.selectedRows.has(rowId)) {
+                    rowElement.classList.add('selected');
+                    rowElement.querySelector('.badge').innerHTML = '<i class="bi bi-check-lg"></i> Selecionada';
+                    rowElement.querySelector('.badge').className = 'badge bg-light text-primary';
+                } else {
+                    rowElement.classList.remove('selected');
+                    rowElement.querySelector('.badge').innerHTML = 'Clique para selecionar';
+                    rowElement.querySelector('.badge').className = 'badge bg-secondary';
+                }
+            }
+        }
+
+        // Gerar todas as sílabas possíveis
+        function generateAllSyllables() {
+            appState.allSyllables = [];
+            
+            Array.from(appState.selectedRows).forEach(rowId => {
+                const row = tibetanData.consonantRows.find(r => r.id === rowId);
+                if (!row) return;
+                
+                row.consonants.forEach(consonant => {
+                    Array.from(appState.selectedVowels).forEach(vowelSymbol => {
+                        const vowel = tibetanData.vowels.find(v => v.symbol === vowelSymbol);
+                        if (!vowel) return;
+                        
+                        const combination = combineConsonantWithVowel(consonant, vowel);
+                        
+                        const syllable = {
+                            fullSymbol: combination.symbol,
+                            display: combination.display,
+                            consonant: consonant.symbol,
+                            vowel: vowelSymbol,
+                            sound: combination.sound,
+                            name: `${consonant.name} + ${vowel.name}`,
+                            consonantBase: consonant.base,
+                            rowId: rowId
+                        };
+                        
+                        appState.allSyllables.push(syllable);
+                    });
+                });
+            });
+            
+            updateSelectionSummary();
+        }
+
+        // Atualizar resumo da seleção
+        function updateSelectionSummary() {
+            const selectedCount = appState.selectedRows.size;
+            const totalCount = tibetanData.consonantRows.length;
+            const vowelCount = appState.selectedVowels.size;
+            
+            selectedCountElement.textContent = selectedCount;
+            selectedRowsElement.textContent = selectedCount;
+            selectedVowelsCountElement.textContent = vowelCount;
+            
+            const totalSyllables = selectedCount * vowelCount * 4;
+            totalSyllablesElement.textContent = totalSyllables;
+        }
+
+        // Selecionar todas as linhas
+        function selectAllRows() {
+            tibetanData.consonantRows.forEach(row => {
+                appState.selectedRows.add(row.id);
+            });
+            generateAllSyllables();
+            updateSelectionSummary();
+            initializeConsonantRows();
+        }
+
+        // Desmarcar todas as linhas
+        function deselectAllRows() {
+            appState.selectedRows.clear();
+            generateAllSyllables();
+            updateSelectionSummary();
+            initializeConsonantRows();
+        }
+
+        // Gerar uma nova pergunta evitando repetição
+        function generateNewQuestion() {
+            if (appState.allSyllables.length === 0) {
+                currentSyllableElement.textContent = "Selecione linhas na configuração";
+                optionsContainer.innerHTML = `
+                    <div class="alert alert-warning text-center" style="grid-column: 1 / -1;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Selecione pelo menos uma linha de consoantes na configuração
+                    </div>
+                `;
+                return;
+            }
+            
+            let filteredSyllables = appState.allSyllables;
+            if (appState.previousSyllable && appState.allSyllables.length > 1) {
+                filteredSyllables = appState.allSyllables.filter(
+                    syllable => !syllablesAreEqual(syllable, appState.previousSyllable)
+                );
+                
+                if (filteredSyllables.length === 0) {
+                    filteredSyllables = appState.allSyllables;
+                }
+            }
+            
+            const randomIndex = Math.floor(Math.random() * filteredSyllables.length);
+            appState.currentSyllable = filteredSyllables[randomIndex];
+            
+            currentSyllableElement.textContent = appState.currentSyllable.display;
+            appState.correctAnswer = appState.currentSyllable.sound;
+            
+            stopAudio();
+            generateAnswerOptions();
+            appState.previousSyllable = appState.currentSyllable;
+        }
+
+        // Verificar se duas sílabas são iguais
+        function syllablesAreEqual(s1, s2) {
+            return s1 && s2 && s1.consonant === s2.consonant && s1.vowel === s2.vowel;
+        }
+
+        // Gerar opções de resposta
+        function generateAnswerOptions() {
+            if (!appState.currentSyllable) return;
+            
+            appState.currentOptions = [appState.correctAnswer];
+            
+            while (appState.currentOptions.length < 4 && appState.currentOptions.length < appState.allSyllables.length) {
+                const randomIndex = Math.floor(Math.random() * appState.allSyllables.length);
+                const randomSound = appState.allSyllables[randomIndex].sound;
+                
+                if (!appState.currentOptions.includes(randomSound)) {
+                    appState.currentOptions.push(randomSound);
+                }
+            }
+            
+            while (appState.currentOptions.length < 4) {
+                const randomIndex = Math.floor(Math.random() * appState.allSyllables.length);
+                const randomSound = appState.allSyllables[randomIndex].sound;
+                if (!appState.currentOptions.includes(randomSound)) {
+                    appState.currentOptions.push(randomSound);
+                }
+            }
+            
+            appState.currentOptions = shuffleArray(appState.currentOptions);
+            renderOptions();
+        }
+
+        // Renderizar opções de resposta em grid 2x2
+        function renderOptions() {
+            optionsContainer.innerHTML = '';
+            
+            appState.currentOptions.forEach(sound => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'option-btn btn btn-outline-primary';
+                optionBtn.textContent = sound;
+                optionBtn.dataset.sound = sound;
+                
+                optionBtn.addEventListener('click', function() {
+                    handleAnswerSelection(this, sound);
+                });
+                
+                optionsContainer.appendChild(optionBtn);
+            });
+        }
+
+        // Manipular seleção de resposta
+        function handleAnswerSelection(button, sound) {
+            if (!button.classList.contains('correct') && !button.classList.contains('incorrect')) {
+                const isCorrect = sound === appState.correctAnswer;
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(isCorrect ? [50] : [100, 50, 100]);
+                }
+                
+                if (isCorrect) {
+                    button.classList.add('correct');
+                    appState.score += 10;
+                    appState.correctCount++;
+                    scoreElement.textContent = appState.score;
+                    correctCountElement.textContent = appState.correctCount;
+                } else {
+                    button.classList.add('incorrect');
+                    appState.incorrectCount++;
+                    incorrectCountElement.textContent = appState.incorrectCount;
+                    
+                    document.querySelectorAll('.option-btn').forEach(btn => {
+                        if (btn.dataset.sound === appState.correctAnswer) {
+                            btn.classList.add('correct');
+                        }
+                    });
+                }
+            }
+        }
+
+        // Função para tocar segmento de áudio
+        function playAudioSegment() {
+            if (!appState.currentSyllable) {
+                console.log("Sem sílaba atual");
+                return;
+            }
+            
+            stopAudio();
+            
+            audioPlayer = new Audio();
+            audioPlayer.src = `https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3`;
+            
+            const playPromise = audioPlayer.play();
+            
+            if (playPromise !== undefined) {
+                playPromise
+                    .then(() => {
+                        isPlaying = true;
+                        audioBtn.classList.add('playing');
+                        audioBtn.innerHTML = '<i class="bi bi-stop"></i>';
+                        
+                        setTimeout(() => {
+                            stopAudio();
+                        }, 1000);
+                    })
+                    .catch(error => {
+                        console.error("Erro ao tocar áudio:", error);
+                        resetAudioButton();
+                    });
+            }
+        }
+
+        // Parar áudio
+        function stopAudio() {
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+            resetAudioButton();
+        }
+
+        // Resetar botão de áudio
+        function resetAudioButton() {
+            isPlaying = false;
+            audioBtn.classList.remove('playing');
+            audioBtn.innerHTML = '<i class="bi bi-volume-up"></i>';
+        }
+
+        // Embaralhar array
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Alternar entre modos Configuração e Jogo
+        function switchToMode(mode) {
+            if (mode === 'config') {
+                configModeBtn.classList.remove('btn-outline-light');
+                configModeBtn.classList.add('btn-light', 'active');
+                gameModeBtn.classList.remove('btn-light', 'active');
+                gameModeBtn.classList.add('btn-outline-light');
+                
+                configSection.classList.remove('d-none');
+                gameSection.classList.add('d-none');
+                instructionsSection.classList.remove('d-none');
+                appState.gameActive = false;
+                stopAudio();
+            } else {
+                if (appState.allSyllables.length === 0) {
+                    alert('Por favor, selecione pelo menos uma linha de consoantes na configuração.');
+                    switchToMode('config');
+                    return;
+                }
+                
+                gameModeBtn.classList.remove('btn-outline-light');
+                gameModeBtn.classList.add('btn-light', 'active');
+                configModeBtn.classList.remove('btn-light', 'active');
+                configModeBtn.classList.add('btn-outline-light');
+                
+                gameSection.classList.remove('d-none');
+                configSection.classList.add('d-none');
+                instructionsSection.classList.add('d-none');
+                stopAudio();
+                
+                if (!appState.gameActive) {
+                    appState.gameActive = true;
+                    appState.previousSyllable = null;
+                    generateNewQuestion();
+                }
+            }
+        }
+
+        // Função para reiniciar o jogo
+        function resetGame() {
+            if (confirm('Reiniciar o jogo? Sua pontuação será zerada.')) {
+                appState.score = 0;
+                appState.correctCount = 0;
+                appState.incorrectCount = 0;
+                appState.previousSyllable = null;
+                scoreElement.textContent = appState.score;
+                correctCountElement.textContent = appState.correctCount;
+                incorrectCountElement.textContent = appState.incorrectCount;
+                stopAudio();
+                generateNewQuestion();
+            }
+        }
+
+        // Inicializar aplicativo
+        function initApp() {
+            initializeVowelsConfig();
+            generateAllSyllables();
+            initializeConsonantRows();
+            
+            configModeBtn.addEventListener('click', () => switchToMode('config'));
+            gameModeBtn.addEventListener('click', () => switchToMode('game'));
+            
+            selectAllBtn.addEventListener('click', selectAllRows);
+            deselectAllBtn.addEventListener('click', deselectAllRows);
+            
+            nextQuestionBtn.addEventListener('click', generateNewQuestion);
+            resetGameBtn.addEventListener('click', resetGame);
+            audioBtn.addEventListener('click', playAudioSegment);
+            
+            nextQuestionBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                generateNewQuestion();
+            });
+            
+            resetGameBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                resetGame();
+            });
+            
+            audioBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                if (isPlaying) {
+                    stopAudio();
+                } else {
+                    playAudioSegment();
+                }
+            });
+            
+            switchToMode('config');
+        }
+
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
